@@ -1,7 +1,6 @@
 #include <vector>
 #include <tuple>
 #include <random>
-#include "graph.h"
 #include "bmlrp.h"
 #include "sim.h"
 

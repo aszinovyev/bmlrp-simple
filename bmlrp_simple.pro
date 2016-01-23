@@ -3,16 +3,18 @@ CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
-SOURCES += main.cpp \
-    graph.cpp \
-    sim.cpp \
-    export.cpp \
-    misc.cpp
-
 LIBS += -ligraph
 
+SOURCES += main.cpp \
+    sim.cpp \
+    misc.cpp \
+    bmlrp.cpp
+
 HEADERS += \
-    graph.h \
     sim.h \
     bmlrp.h \
     misc.h
+
+OTHER_FILES += \
+    export.cpp \
+    export.h
