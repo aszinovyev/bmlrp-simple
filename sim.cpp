@@ -1,6 +1,7 @@
-#include <vector>
-#include <tuple>
 #include <random>
+#include <vector>
+#include <set>
+#include <tuple>
 #include "bmlrp.h"
 #include "sim.h"
 
@@ -32,7 +33,7 @@ tuple< Graph, vector<Addr>, vector<Point> > Random(int n, float sz, float r) {
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
             if ( (i != j) && Close(points[i], points[j], r) ) {
-                res.edges[i].push_back(j);
+                res.edges.insert(make_pair(i, j));
             }
         }
     }

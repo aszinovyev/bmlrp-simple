@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <set>
 #include <tuple>
 #include "misc.h"
 #include "bmlrp.h"
@@ -19,8 +20,10 @@ int main() {
     for (int i = 0; i < n; ++i) {
         cout << i << ": ";
 
-        for (uint j = 0; j < graph.edges[i].size(); ++j) {
-            cout << graph.edges[i][j] << " ";
+        for (auto it = graph.edges.lower_bound(make_pair(i, 0));
+             it != graph.edges.end() && it->first == i; ++it)
+        {
+            cout << it->second << " ";
         }
 
         cout << " |  " << Binary(addrs[i], 4) << "  |  " << points[i].x << " " << points[i].y << endl;
