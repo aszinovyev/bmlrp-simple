@@ -1,6 +1,5 @@
-#include <string>
-#include <vector>
-#include <set>
+#include "stable.h"
+#include "graph.h"
 #include "bmlrp.h"
 #include "misc.h"
 

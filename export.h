@@ -2,7 +2,7 @@
 #define EXPORT_H
 
 struct GraphR {
-    vector<int> edges;
+    vector<uint> edges;
     vector<string> labels;
     vector<bool> colors;
     vector<float> coords;   //x1,y1,x2,y2,...

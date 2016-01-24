@@ -7,14 +7,16 @@
 #include "sim.h"
 #include "export.h"
 
-vector<int> EdgesForR(Graph graph) {
-    vector<int> res;
-    for (int i = 0; i < graph.n; ++i) {
-        for (auto it = graph.edges.lower_bound(make_pair(i, i));
-             it != graph.edges.end() && it->first == i; ++it)
-        {
-            res.push_back(i);
-            res.push_back(it->second);
+vector<uint> EdgesForR(Graph graph) {
+    vector<uint> res;
+    for (uint i = 0; i < graph.n; ++i) {
+        for (uint j = 0; j < graph.edges[i].size(); ++j) {
+            uint to = graph.edges[i][j];
+
+            if (to > i) {
+                res.push_back(i);
+                res.push_back(to);
+            }
         }
     }
 
