@@ -3,18 +3,24 @@
 
 using namespace std;
 
-typedef unsigned int Addr;
+typedef uint Addr;
 
-const Addr FirstBit = (Addr(-1) >> 1) + 1;
+const Addr FirstBit = ((Addr)-1 >> 1) + 1;
 
 class Graph {
 public:
-    int n;
-    set< pair<int, int> > edges;
-    vector<int> ids;
+    uint n;
+    set< pair<uint, uint> > edges;
 
     Graph();
-    Graph(int n);
+    Graph(uint n);
+
+    void addEdge(uint a, uint b);
+
+    void merge(const Graph& g);
+    void isolate(uint node);
+
+    bool equals(const Graph& g);
 };
 
 //bool SameColor(Addr a, Addr b, char level);

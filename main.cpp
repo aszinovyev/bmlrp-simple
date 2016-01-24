@@ -1,7 +1,9 @@
 #include <iostream>
+
 #include <vector>
 #include <set>
 #include <tuple>
+
 #include "misc.h"
 #include "bmlrp.h"
 #include "sim.h"
@@ -17,7 +19,7 @@ int main() {
 
     tie(graph, addrs, points) = Random(n, 10, 3.7);
 
-    for (int i = 0; i < n; ++i) {
+    for (uint i = 0; i < n; ++i) {
         cout << i << ": ";
 
         for (auto it = graph.edges.lower_bound(make_pair(i, 0));
