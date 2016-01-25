@@ -12,7 +12,37 @@ Graph::Graph(uint n) {
     edges.resize(n);
 }
 
-void Graph::Print() {
+
+void Graph::AddDirEdge(uint a, uint b) {
+    assert(a < n);
+    assert(b < n);
+
+    edges[a].push_back(b);
+}
+
+void Graph::AddEdge(uint a, uint b) {
+    assert(a < n);
+    assert(b < n);
+
+    edges[a].push_back(b);
+    edges[b].push_back(a);
+}
+
+void Graph::Simplify() {
+    for (uint i = 0; i < n; ++i) {
+        sort(edges[i].begin(), edges[i].end());
+
+        auto tail = unique(edges[i].begin(), edges[i].end());
+        edges[i].resize( distance(edges[i].begin(), tail) );
+    }
+}
+
+bool Graph::Connected(uint a, uint b) const {
+    return ( find(edges[a].cbegin(), edges[a].cend(), b) != edges[a].cend() );
+}
+
+
+void Graph::Print() const {
     cout << n << " vertices" << endl;
 
     for (uint i = 0; i < n; ++i) {
@@ -28,11 +58,3 @@ void Graph::Print() {
 
     cout << endl;
 }
-
-//void Graph::addEdge(uint a, uint b) {
-//    assert(a < n);
-//    assert(b < n);
-
-//    edges.insert( make_pair(a, b) );
-//    edges.insert( make_pair(b, a) );
-//}

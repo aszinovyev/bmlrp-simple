@@ -11,7 +11,13 @@ public:
     Graph();
     Graph(uint n);
 
-    void Print();
+    void AddDirEdge(uint a, uint b);
+    void AddEdge(uint a, uint b);
+    void Simplify();
+
+    bool Connected(uint a, uint b) const;
+
+    void Print() const;
 };
 
 #endif // GRAPH_H
