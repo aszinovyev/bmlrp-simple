@@ -14,17 +14,23 @@ int main() {
 
     graph.Print();
 
-    for (uint i = 0; i < addrs.size(); ++i) {
-        cout << Binary(addrs[i]) << endl;
-    }
-    cout << endl;
+//    for (uint i = 0; i < addrs.size(); ++i) {
+//        cout << Binary(addrs[i]) << endl;
+//    }
+//    cout << endl;
 
-    for (uint i = 0; i < points.size(); ++i) {
-        cout << points[i].x << " " << points[i].y << endl;
-    }
-    cout << endl;
+//    for (uint i = 0; i < points.size(); ++i) {
+//        cout << points[i].x << " " << points[i].y << endl;
+//    }
+//    cout << endl;
 
-    NextLevel(graph, addrs).Print();
+    Graph l1 = NextLevel(graph, addrs);
+    l1.Print();
+
+    Graph l2 = NextLevel(l1, addrs);
+    l2.Print();
+
+    NextLevel(l2, addrs).Print();
 
 //    const int n = 10;
 

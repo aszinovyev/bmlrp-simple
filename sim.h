@@ -19,7 +19,12 @@ public:
     }
 };
 
-tuple< Graph, vector<Addr>, vector<Point> > Random(int n, float sz, float r);
-tuple< Graph, vector<Addr>, vector<Point> > Manual0();
+typedef tuple< Graph, vector<Addr>, vector<Point> > GraphInfo;
+
+
+GraphInfo Random(int n, float sz, float r);
+GraphInfo Manual0();
+GraphInfo Manual1();
+GraphInfo Manual2();
 
 #endif // SIM_H

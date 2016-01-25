@@ -211,7 +211,7 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
                                 g[to].edges[b].push_back(a);
                             }
                         } else {
-                            qn.push(State(to, chain, ttl));
+                            qn.push(State(to, chain, ttl - 1));
                         }
                     }
                 }
@@ -237,21 +237,21 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
     }
 
     // print g
-    for (uint i = 0; i < n; ++i) {
-        cout << "g of " << i << " :  ";
+//    for (uint i = 0; i < n; ++i) {
+//        cout << "g of " << i << " :  ";
 
-        for (uint j = 0; j < n; ++j) {
-            for (uint k = 0; k < g[i].edges[j].size(); ++k) {
-                const uint to = g[i].edges[j][k];
-                if (to >= j) {
-                    cout << j << "-" << to << " ";
-                }
-            }
-        }
+//        for (uint j = 0; j < n; ++j) {
+//            for (uint k = 0; k < g[i].edges[j].size(); ++k) {
+//                const uint to = g[i].edges[j][k];
+//                if (to >= j) {
+//                    cout << j << "-" << to << " ";
+//                }
+//            }
+//        }
 
-        cout << endl;
-    }
-    cout << endl;
+//        cout << endl;
+//    }
+//    cout << endl;
 
 
     Graph res(n);

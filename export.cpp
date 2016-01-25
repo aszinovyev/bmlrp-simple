@@ -1,48 +1,38 @@
 #include <Rcpp.h>
-#include <vector>
-#include <set>
-#include <tuple>
-#include "misc.h"
+#include "stable.h"
+
+#include "graph.h"
 #include "bmlrp.h"
+#include "misc.h"
 #include "sim.h"
 #include "export.h"
 
-vector<uint> EdgesForR(Graph graph) {
-    vector<uint> res;
-    for (uint i = 0; i < graph.n; ++i) {
-        for (uint j = 0; j < graph.edges[i].size(); ++j) {
-            uint to = graph.edges[i][j];
 
-            if (to > i) {
-                res.push_back(i);
-                res.push_back(to);
-            }
-        }
-    }
-
-    return res;
-}
-
-
-// [[Rcpp::export]]
-GraphR RandomForR() {
+GraphInfo getLevel(GraphInfo graphInfo, int level) {
     Graph graph;
     vector<Addr> addrs;
-    vector<Point> points;
-    tie(graph, addrs, points) = Random(10, 10, 3.7);
+    tie(graph, addrs, ignore) = graphInfo;
 
-    GraphR res;
-    res.edges = EdgesForR(graph);
-    res.labels.resize(graph.n);
-    res.colors.resize(graph.n);
-    res.coords.resize(graph.n * 2);
+    while (level > 0) {
+        graph = NextLevel(graph, addrs);
 
-    for (int i = 0; i < graph.n; ++i) {
-        res.labels[i] = Binary(addrs[i], 4, false);
-        res.colors[i] = res.labels[i][0] - '0';
-        res.coords[i*2] = points[i].x;
-        res.coords[i*2+1] = points[i].y;
+        for (uint i = 0; i < addrs.size(); ++i) {
+            addrs[i] <<= 1;
+        }
+
+        --level;
     }
 
-    return res;
+    return make_tuple(graph, get<1>(graphInfo), get<2>(graphInfo));
+}
+
+// [[Rcpp::export]]
+GraphWrapper Random_R(int level, int format) {
+    //return GraphWrapper( getLevel(Random(10, 10, 3.7), level), format );
+    return GraphWrapper( getLevel(Random(500, 70, 7), level), format );
+}
+
+// [[Rcpp::export]]
+GraphWrapper Manual0_R(int level, int format) {
+    return GraphWrapper( getLevel(Manual0(), level), format );
 }
