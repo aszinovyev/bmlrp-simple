@@ -2,6 +2,7 @@
 #include "graph.h"
 #include "bmlrp.h"
 #include "misc.h"
+#include "sim.h"
 
 
 class State {
@@ -293,7 +294,20 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
     return res;
 }
 
+Graph GetLevel(const Graph& level0, const vector<Addr>& addrs, int level) {
+    Graph res = level0;
 
+    vector<Addr> addrs_copy = addrs;
 
+    while (level > 0) {
+        res = NextLevel(res, addrs_copy);
 
+        for (uint i = 0; i < addrs_copy.size(); ++i) {
+            addrs_copy[i] <<= 1;
+        }
 
+        --level;
+    }
+
+    return res;
+}

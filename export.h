@@ -1,43 +1,73 @@
 #ifndef EXPORT_H
 #define EXPORT_H
 
-class GraphWrapper {
+class Network_R {
 public:
     vector<uint> edges;
     vector<string> labels;
     vector<bool> colors;
     vector<float> coords;   //x1,y1,x2,y2,...
 
-    GraphWrapper() {}
+    Network_R() {}
 
-    GraphWrapper(GraphInfo graphInfo, int format) {
-        Graph graph;
-        vector<Addr> addrs;
-        vector<Point> points;
-        tie(graph, addrs, points) = graphInfo;
+    Network_R(const Network& net, string filter, int labelLen) {
+        Graph graph = net.graph;
+        vector<Addr> addrs = net.addrs;
+        vector<Point> points = net.points;
 
-        edges = EdgesForR(graph);
-        labels.resize(graph.n);
-        colors.resize(graph.n);
-        coords.resize(graph.n * 2);
+        const uint n = net.graph.n;
 
-        for (int i = 0; i < graph.n; ++i) {
-            labels[i] = Binary(addrs[i], format, false);
-            colors[i] = (addrs[i] & FirstBit);
-            coords[i*2] = points[i].x;
-            coords[i*2+1] = points[i].y;
+        assert(addrs.size() == n);
+        assert(points.size() == n);
+
+        int include[n];
+        int j = 0;
+        for (uint i = 0; i < n; ++i) {
+            if (IncludeAddr(addrs[i], filter)) {
+                include[i] = j++;
+            } else {
+                include[i] = -1;
+            }
+        }
+
+        edges = Edges_R(graph, include);
+
+        for (uint i = 0; i < n; ++i) {
+            if (include[i] != -1) {
+                labels.push_back( Binary(addrs[i], labelLen, false) );
+                colors.push_back( addrs[i] & (FirstBit >> filter.size()) );
+                coords.push_back( points[i].x );
+                coords.push_back( points[i].y );
+            }
         }
     }
 
-    vector<uint> EdgesForR(Graph graph) {
+private:
+    bool IncludeAddr(Addr a, const string& filter) {
+        for (uint i = 0; i < filter.size(); ++i) {
+            char ch = filter[i] - '0';
+            assert(ch == 0 || ch == 1);
+
+            if ((bool)(a & FirstBit) != ch) {
+                return false;
+            }
+
+            a <<= 1;
+        }
+
+        return true;
+    }
+
+    vector<uint> Edges_R(Graph graph, int* include) {
         vector<uint> res;
+
         for (uint i = 0; i < graph.n; ++i) {
             for (uint j = 0; j < graph.edges[i].size(); ++j) {
                 uint to = graph.edges[i][j];
 
-                if (to > i) {
-                    res.push_back(i);
-                    res.push_back(to);
+                if ((to > i) && (include[i] != -1) && (include[to] != -1)) {
+                    res.push_back(include[i]);
+                    res.push_back(include[to]);
                 }
             }
         }
@@ -46,18 +76,18 @@ public:
     }
 };
 
-RCPP_EXPOSED_CLASS(GraphWrapper)
+RCPP_EXPOSED_CLASS(Network_R)
 
 RCPP_MODULE(md) {
     using namespace Rcpp;
 
-    class_<GraphWrapper>("Graph")
+    class_<Network_R>("Graph")
         .constructor()
 
-        .field("edges", &GraphWrapper::edges)
-        .field("labels", &GraphWrapper::labels)
-        .field("colors", &GraphWrapper::colors)
-        .field("coords", &GraphWrapper::coords)
+        .field("edges", &Network_R::edges)
+        .field("labels", &Network_R::labels)
+        .field("colors", &Network_R::colors)
+        .field("coords", &Network_R::coords)
 
         ;
 }

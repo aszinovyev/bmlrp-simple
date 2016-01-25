@@ -7,12 +7,11 @@
 using namespace std;
 
 int main() {
-    Graph graph;
-    vector<Addr> addrs;
-    vector<Point> points;
-    tie(graph, addrs, points) = Manual0();
+    Network net = Manual1();
 
-    graph.Print();
+    Graph graph = net.graph;
+    vector<Addr> addrs = net.addrs;
+    vector<Point> points = net.points;
 
 //    for (uint i = 0; i < addrs.size(); ++i) {
 //        cout << Binary(addrs[i]) << endl;
@@ -24,13 +23,8 @@ int main() {
 //    }
 //    cout << endl;
 
-    Graph l1 = NextLevel(graph, addrs);
-    l1.Print();
-
-    Graph l2 = NextLevel(l1, addrs);
-    l2.Print();
-
-    NextLevel(l2, addrs).Print();
+    graph.Print();
+    GetLevel(graph, addrs, 1).Print();
 
 //    const int n = 10;
 

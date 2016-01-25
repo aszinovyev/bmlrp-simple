@@ -8,31 +8,17 @@
 #include "export.h"
 
 
-GraphInfo getLevel(GraphInfo graphInfo, int level) {
-    Graph graph;
-    vector<Addr> addrs;
-    tie(graph, addrs, ignore) = graphInfo;
-
-    while (level > 0) {
-        graph = NextLevel(graph, addrs);
-
-        for (uint i = 0; i < addrs.size(); ++i) {
-            addrs[i] <<= 1;
-        }
-
-        --level;
-    }
-
-    return make_tuple(graph, get<1>(graphInfo), get<2>(graphInfo));
+// [[Rcpp::export]]
+Network_R Random_R(int n, float r_coeff, int level, string filter, int labelLen) {
+    return Network_R( GetNetworkLevel(Random(n, r_coeff), level), filter, labelLen);
 }
 
 // [[Rcpp::export]]
-GraphWrapper Random_R(int level, int format) {
-    //return GraphWrapper( getLevel(Random(10, 10, 3.7), level), format );
-    return GraphWrapper( getLevel(Random(500, 70, 7), level), format );
+Network_R Manual0_R(int level, string filter, int labelLen) {
+    return Network_R( GetNetworkLevel(Manual0(), level), filter, labelLen );
 }
 
 // [[Rcpp::export]]
-GraphWrapper Manual0_R(int level, int format) {
-    return GraphWrapper( getLevel(Manual0(), level), format );
+Network_R Manual1_R(int level, string filter, int labelLen) {
+    return Network_R( GetNetworkLevel(Manual1(), level), filter, labelLen );
 }
