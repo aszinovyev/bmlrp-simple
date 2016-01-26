@@ -3,7 +3,7 @@
 
 using namespace std;
 
-typedef uint Addr;
+typedef uint64_t Addr;
 const Addr FirstBit = ((Addr)-1 >> 1) + 1;
 
 //Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs);
