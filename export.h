@@ -10,7 +10,7 @@ public:
 
     Network_R() {}
 
-    Network_R(const Network& net, const string& filter, int labelLen) {
+    Network_R(const Network& net, const string& filter, char label) {
         Graph graph = net.graph;
         vector<Addr> addrs = net.addrs;
         vector<Point> points = net.points;
@@ -34,8 +34,14 @@ public:
 
         for (uint i = 0; i < n; ++i) {
             if (include[i] != -1) {
-                labels.push_back( Binary(addrs[i], labelLen, false) );
+                if (label < 0) {
+                    labels.push_back( to_string(i) );
+                } else {
+                    labels.push_back( Binary(addrs[i], label, false) );
+                }
+
                 colors.push_back( addrs[i] & (FirstBit >> filter.size()) );
+
                 coords.push_back( points[i].x );
                 coords.push_back( points[i].y );
             }

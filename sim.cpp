@@ -11,9 +11,14 @@ Network GetNetworkLevel(const Network& net_level0, int level) {
                     net_level0.addrs, net_level0.points);
 }
 
-Addr S(Addr a, char s) {
-    uniform_int_distribution<Addr> dist(0, ~((Addr)-1 << s));
-    return (a << s) + dist(Gen);
+Addr GenAddr(Addr prefix, uchar prefix_len = 1) {
+    uniform_int_distribution<Addr> dist(0, ~((Addr)-1 >> prefix_len));
+    return (prefix << (sizeof(prefix)*8 - prefix_len)) + dist(Gen);
+}
+
+Addr GenAddr() {
+    uniform_int_distribution<Addr> dist;
+    return dist(Gen);
 }
 
 // to [0,1] x [0,1]
@@ -60,14 +65,13 @@ bool Close(Point a, Point b, float r) {
 Network Random(int n, float r_coeff) {
     float r = r_coeff / sqrt(n);
 
-    uniform_int_distribution<Addr> distAddr;
     uniform_real_distribution<float> distFloat;
 
     vector<Addr> addrs(n);
     vector<Point> points(n);
 
     for (int i = 0; i < n; ++i) {
-        addrs[i] = distAddr(Gen);
+        addrs[i] = GenAddr();
 
         points[i].x = distFloat(Gen);
         points[i].y = distFloat(Gen);
@@ -95,7 +99,7 @@ Network Manual0() {
     graph.edges[3] = {2,4};
     graph.edges[4] = {3,0};
 
-    vector<Addr> addrs = { S(0,0), S(1,29), S(3,30), S(1,30), S(2,30) };
+    vector<Addr> addrs = { GenAddr(0), GenAddr(0), GenAddr(1), GenAddr(0), GenAddr(1) };
 
     vector<Point> points = {Point(1, 1), Point(2, 1), Point(1, 0), Point(0, 0), Point(0, 1)};
     ScalePoints(points);
@@ -112,7 +116,9 @@ Network Manual1() {
     graph.edges[4] = {3};
     graph.edges[5] = {2};
 
-    vector<Addr> addrs = { S(1,31), S(0,31), S(0,31), S(0,31), S(1,31), S(1,31) };
+    vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(0),
+                           GenAddr(1), GenAddr(1)
+                         };
 
     vector<Point> points = { Point(0,1), Point(1,1), Point(2,1), Point(3,1),
                              Point(4,1), Point(2,0)
@@ -139,10 +145,10 @@ Network Manual2() {
     graph.edges[12] = {10,13};
     graph.edges[13] = {11,12};
 
-    vector<Addr> addrs = { S(1,31), S(0,0), S(1,27), S(2,27),
-                           S(3,27), S(4,27), S(5,27), S(6,27), //S(7,29),
-                           S(5,29), S(7,27), S(8,27), S(9,27),
-                           S(10,27), S(6,29)
+    vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(0),
+                           GenAddr(0), GenAddr(0), GenAddr(0), GenAddr(0), //GenAddr(1),
+                           GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(0),
+                           GenAddr(0), GenAddr(1)
                          };
 
     vector<Point> points = { Point(0,3), Point(1,3), Point(2,3), Point(3,3),
@@ -167,9 +173,9 @@ Network Manual3() {
     graph.edges[7] = {6,8};
     graph.edges[8] = {7};
 
-    vector<Addr> addrs = { S(1,31), S(1,28), S(2,28), S(5,29),
-                           S(4,28), S(5,28), S(6,28), S(0,31),
-                           S(6,29)
+    vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(1),
+                           GenAddr(0), GenAddr(0), GenAddr(0), GenAddr(0),
+                           GenAddr(1)
                          };
 
     vector<Point> points = { Point(0,2), Point(0.5,1), Point(1.5,1), Point(0,0),
@@ -194,10 +200,11 @@ Network Manual4() {
     graph.edges[8] = {7};
     graph.edges[9] = {4};
 
-    vector<Addr> addrs = { S(4,29), S(1,28), S(2,28), S(5,29),
-                           S(4,28), S(5,28), S(6,28), S(0,31),
-                           S(7,29), S(4,29)
+    vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(1),
+                           GenAddr(0), GenAddr(0), GenAddr(0), GenAddr(0),
+                           GenAddr(1), GenAddr(1)
                          };
+
 
     vector<Point> points = { Point(0,2), Point(0.5,1), Point(1.5,1), Point(0,0),
                              Point(1,0), Point(2,0), Point(3,0), Point(4,-1),

@@ -6,7 +6,9 @@
 
 default_random_engine Gen(0xABCD2345);
 
-string Binary(Addr a, char n, bool format) {
+string Binary(Addr a, uchar n, bool format) {
+    assert(n <= sizeof(a)*8);
+
     string res;
     for (char i = 0; i < n; ++i) {
         if (format && (i != 0) && (i % 4 == 0)) {

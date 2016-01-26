@@ -8,7 +8,7 @@
 using namespace std;
 
 int main() {
-    Network net = Manual3();
+    Network net = Manual0();
 
     Graph graph = net.graph;
     vector<Addr> addrs = net.addrs;

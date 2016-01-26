@@ -2,8 +2,19 @@ require(Rcpp)
 require(igraph)
 
 Sys.setenv("PKG_CXXFLAGS"="-std=c++11")
-
 sourceCpp("export.cpp")
+
+
+ResetSeed <- function() {
+    Seed <<- 0xFA2B5E01
+}
+SetSeed <- function(seed) {
+    Seed <<- seed
+}
+if (!exists("Seed")) {
+    ResetSeed()
+}
+
 
 Process <- function(data, draw, use_layout, ...) {
     labels <- data$labels
@@ -33,26 +44,32 @@ Process <- function(data, draw, use_layout, ...) {
     graph
 }
 
-Random <- function(n, r_coeff, level = 0, filter = "", labelLen = 0, draw = T, layout = T, ...) {
-    Process(Random_R(n, r_coeff, level, filter, labelLen), draw, layout, ...)
+Random <- function(n, r_coeff, level = 0, filter = "", vlabel = 0, draw = T, layout = T, ...) {
+    SetSeed_R(Seed)
+    Process(Random_R(n, r_coeff, level, filter, vlabel), draw, layout, ...)
 }
 
 Manual0 <- function(level = 0, filter = "", draw = T, layout = T) {
+    SetSeed_R(Seed)
     Process(Manual0_R(level, filter, 3), draw, layout)
 }
 
 Manual1 <- function(level = 0, filter = "", draw = T, layout = T) {
+    SetSeed_R(Seed)
     Process(Manual1_R(level, filter, 3), draw, layout)
 }
 
 Manual2 <- function(level = 0, filter = "", draw = T, layout = T) {
+    SetSeed_R(Seed)
     Process(Manual2_R(level, filter, 5), draw, layout)
 }
 
 Manual3 <- function(level = 0, filter = "", draw = T, layout = T) {
+    SetSeed_R(Seed)
     Process(Manual3_R(level, filter, 5), draw, layout)
 }
 
 Manual4 <- function(level = 0, filter = "", draw = T, layout = T) {
+    SetSeed_R(Seed)
     Process(Manual4_R(level, filter, 5), draw, layout)
 }
