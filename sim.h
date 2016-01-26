@@ -41,5 +41,7 @@ Network Random(int n, float r_coeff);
 Network Manual0();
 Network Manual1();
 Network Manual2();
+Network Manual3();
+Network Manual4();
 
 #endif // SIM_H

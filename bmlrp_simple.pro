@@ -16,7 +16,8 @@ HEADERS += \
     bmlrp.h \
     misc.h \
     graph.h \
-    stable.h
+    stable.h \
+    myassert.h
 
 OTHER_FILES += \
     export.cpp \

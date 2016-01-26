@@ -1,4 +1,5 @@
 #include "stable.h"
+#include "myassert.h"
 #include "graph.h"
 #include "bmlrp.h"
 #include "misc.h"
@@ -14,15 +15,15 @@ Graph::Graph(uint n) {
 
 
 void Graph::AddDirEdge(uint a, uint b) {
-    assert(a < n);
-    assert(b < n);
+    myassert(a < n);
+    myassert(b < n);
 
     edges[a].push_back(b);
 }
 
 void Graph::AddEdge(uint a, uint b) {
-    assert(a < n);
-    assert(b < n);
+    myassert(a < n);
+    myassert(b < n);
 
     edges[a].push_back(b);
     edges[b].push_back(a);
@@ -41,19 +42,28 @@ bool Graph::Connected(uint a, uint b) const {
     return ( find(edges[a].cbegin(), edges[a].cend(), b) != edges[a].cend() );
 }
 
-
-void Graph::Print() const {
-    cout << n << " vertices" << endl;
-
+bool Graph::Symmetric() const {
     for (uint i = 0; i < n; ++i) {
-        cout << i << " :  ";
-
         for (uint j = 0; j < edges[i].size(); ++j) {
             const uint to = edges[i][j];
-            cout << to << " ";
-        }
 
-        cout << endl;
+            if (!Connected(to, i)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+void Graph::Print() const {
+    cout << n << " vertices:  ";
+
+    for (uint i = 0; i < n; ++i) {
+        for (uint j = 0; j < edges[i].size(); ++j) {
+            const uint to = edges[i][j];
+            cout << i << "-" << to << " ";
+        }
     }
 
     cout << endl;

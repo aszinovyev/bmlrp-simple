@@ -37,10 +37,22 @@ Random <- function(n, r_coeff, level = 0, filter = "", labelLen = 0, draw = T, l
     Process(Random_R(n, r_coeff, level, filter, labelLen), draw, layout, ...)
 }
 
-Manual0 <- function(level = 0, draw = T, layout = T) {
-    Process(Manual0_R(level, 3), draw, layout)
+Manual0 <- function(level = 0, filter = "", draw = T, layout = T) {
+    Process(Manual0_R(level, filter, 3), draw, layout)
 }
 
-Manual1 <- function(level = 0, draw = T, layout = T) {
-    Process(Manual1_R(level, 3), draw, layout)
+Manual1 <- function(level = 0, filter = "", draw = T, layout = T) {
+    Process(Manual1_R(level, filter, 3), draw, layout)
+}
+
+Manual2 <- function(level = 0, filter = "", draw = T, layout = T) {
+    Process(Manual2_R(level, filter, 5), draw, layout)
+}
+
+Manual3 <- function(level = 0, filter = "", draw = T, layout = T) {
+    Process(Manual3_R(level, filter, 5), draw, layout)
+}
+
+Manual4 <- function(level = 0, filter = "", draw = T, layout = T) {
+    Process(Manual4_R(level, filter, 5), draw, layout)
 }

@@ -10,15 +10,15 @@ public:
 
     Network_R() {}
 
-    Network_R(const Network& net, string filter, int labelLen) {
+    Network_R(const Network& net, const string& filter, int labelLen) {
         Graph graph = net.graph;
         vector<Addr> addrs = net.addrs;
         vector<Point> points = net.points;
 
         const uint n = net.graph.n;
 
-        assert(addrs.size() == n);
-        assert(points.size() == n);
+        myassert(addrs.size() == n);
+        myassert(points.size() == n);
 
         int include[n];
         int j = 0;
@@ -46,7 +46,7 @@ private:
     bool IncludeAddr(Addr a, const string& filter) {
         for (uint i = 0; i < filter.size(); ++i) {
             char ch = filter[i] - '0';
-            assert(ch == 0 || ch == 1);
+            myassert(ch == 0 || ch == 1);
 
             if ((bool)(a & FirstBit) != ch) {
                 return false;

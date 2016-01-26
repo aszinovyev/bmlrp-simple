@@ -1,4 +1,5 @@
 #include "stable.h"
+#include "myassert.h"
 #include "graph.h"
 #include "bmlrp.h"
 #include "misc.h"
@@ -7,16 +8,16 @@
 using namespace std;
 
 int main() {
-    Network net = Manual1();
+    Network net = Manual3();
 
     Graph graph = net.graph;
     vector<Addr> addrs = net.addrs;
     vector<Point> points = net.points;
 
-//    for (uint i = 0; i < addrs.size(); ++i) {
-//        cout << Binary(addrs[i]) << endl;
-//    }
-//    cout << endl;
+    for (uint i = 0; i < addrs.size(); ++i) {
+        cout << Binary(addrs[i]) << endl;
+    }
+    cout << endl;
 
 //    for (uint i = 0; i < points.size(); ++i) {
 //        cout << points[i].x << " " << points[i].y << endl;
@@ -24,6 +25,7 @@ int main() {
 //    cout << endl;
 
     graph.Print();
+    cout << endl;
     GetLevel(graph, addrs, 1).Print();
 
 //    const int n = 10;

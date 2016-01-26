@@ -1,4 +1,5 @@
 #include "stable.h"
+#include "myassert.h"
 #include "graph.h"
 #include "bmlrp.h"
 #include "misc.h"
@@ -63,7 +64,7 @@ public:
         Addr mAddr = FirstBit;
 
         while (r - l > 1) {
-            assert(bit != 0);
+            myassert(bit != 0);
 
             uint m = l;
             while ((m < r) && (hood[m].first < mAddr)) {
@@ -109,8 +110,8 @@ public:
     }
 
     void connectTo(const Hood& to, Addr myNode, Graph& appendTo) const {
-        assert(!empty());
-        assert(!to.empty());
+        myassert(!empty());
+        myassert(!to.empty());
 
         Addr bestDist = hood[0].first ^ to.hood[0].first;
         uint best0 = hood[0].second;
@@ -141,7 +142,7 @@ bool SameColor(Addr a, Addr b) {
 
 void EnterHood(uint node, uint myNode, const Graph& g, const Hood& myHood,
                bool* used, const vector<Addr>& addrs, Graph& appendTo) {
-    if (used[node]) {
+    if (used[node] || g.Connected(myNode, node)) {
         return;
     }
     used[node] = true;
@@ -208,8 +209,7 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
                                 uint a = chain[j];
                                 uint b = chain[j + 1];
 
-                                g[to].edges[a].push_back(b);
-                                g[to].edges[b].push_back(a);
+                                g[to].AddEdge(a, b);
                             }
                         } else {
                             qn.push(State(to, chain, ttl - 1));
@@ -240,17 +240,7 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
     // print g
 //    for (uint i = 0; i < n; ++i) {
 //        cout << "g of " << i << " :  ";
-
-//        for (uint j = 0; j < n; ++j) {
-//            for (uint k = 0; k < g[i].edges[j].size(); ++k) {
-//                const uint to = g[i].edges[j][k];
-//                if (to >= j) {
-//                    cout << j << "-" << to << " ";
-//                }
-//            }
-//        }
-
-//        cout << endl;
+//        g[i].Print();
 //    }
 //    cout << endl;
 
@@ -258,16 +248,12 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
     Graph res(n);
 
     for (uint i = 0; i < n; ++i) {
-        bool used[n] = {false};
-
         for (uint j = 0; j < g[i].edges[i].size(); ++j) {
             const uint jto = g[i].edges[i][j];
 
             if (SameColor(addrs[i], addrs[jto])) {
                 res.AddDirEdge(i, jto);
             } else {
-                used[jto] = true;
-
                 Hood hood(g[i], jto, addrs);
                 hood.connectInside(i, addrs[i], res);
             }
@@ -275,6 +261,9 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
 
         for (uint j = 0; j < g[i].edges[i].size(); ++j) {
             const uint jto = g[i].edges[i][j];
+
+            bool used[n] = {false};
+            used[jto] = true;
 
             if (!SameColor(addrs[i], addrs[jto])) {
                 for (uint k = 0; k < g[i].edges[jto].size(); ++k) {
@@ -291,11 +280,13 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
 
     res.Simplify();
 
+    myassert(res.Symmetric());
     return res;
 }
 
 Graph GetLevel(const Graph& level0, const vector<Addr>& addrs, int level) {
     Graph res = level0;
+    myassert(res.Symmetric());
 
     vector<Addr> addrs_copy = addrs;
 
