@@ -76,7 +76,6 @@ Network Random(int n, float r_coeff) {
         points[i].x = distFloat(Gen);
         points[i].y = distFloat(Gen);
     }
-    ScalePoints(points);
 
     Graph res(n);
 
@@ -87,6 +86,8 @@ Network Random(int n, float r_coeff) {
             }
         }
     }
+
+    ScalePoints(points);
 
     return Network(res, addrs, points);
 }
