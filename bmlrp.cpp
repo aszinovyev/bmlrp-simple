@@ -6,26 +6,61 @@
 #include "sim.h"
 
 
-class State {
+class State1 {
 public:
     uint node;  //current position
     vector<uint> chain;
     uint ttl;
 
-    State() {
+    State1() {
         node = 0;
         ttl = 0;
     }
 
-    State(uint node, uint ttl) {
-        State::node = node;
-        State::ttl = ttl;
+    State1(uint node, uint ttl) {
+        State1::node = node;
+        State1::ttl = ttl;
     }
 
-    State(uint node, vector<uint> chain, uint ttl) {
-        State::node = node;
-        State::chain = chain;
-        State::ttl = ttl;
+    State1(uint node, vector<uint> chain, uint ttl) {
+        State1::node = node;
+        State1::chain = chain;
+        State1::ttl = ttl;
+    }
+};
+
+class State2 {
+public:
+    uint node;
+    uint ttl;
+    uint dist;
+
+    State2() {
+        node = 0;
+        ttl = 0;
+        dist = 0;
+    }
+
+    State2(uint node, uint ttl, uint dist) {
+        State2::node = node;
+        State2::ttl = ttl;
+        State2::dist = dist;
+    }
+
+    bool operator<(const State2& other) const {
+        if (ttl > other.ttl) {
+            return true;
+        }
+        if (ttl < other.ttl) {
+            return false;
+        }
+        if (dist < other.dist) {
+            return true;
+        }
+        if (dist > other.dist) {
+            return false;
+        }
+        return (node < other.node);
     }
 };
 
@@ -140,9 +175,24 @@ bool SameColor(Addr a, Addr b) {
     return ~(a ^ b) & FirstBit;
 }
 
+//void MarkConnectedHoods(uint node, const Graph& g, const vector<Addr>& addrs, vector<bool>& output, uchar step = 0) {
+//    if (step == 3) {
+//        output[node] = true;
+//        return;
+//    }
+
+//    for (uint j = 0; j < g.edges[node].size(); ++j) {
+//        const uint to = g.edges[node][j];
+
+//        if (!SameColor(addrs[node], addrs[to])) {
+//            MarkConnectedHoods(to, g, addrs, output, step + 1);
+//        }
+//    }
+//}
+
 void EnterHood(uint node, uint myNode, const Graph& g, const Hood& myHood,
-               bool* used, const vector<Addr>& addrs, Graph& appendTo) {
-    if (used[node] || g.Connected(myNode, node)) {
+               vector<bool>& used, const vector<Addr>& addrs, Graph& appendTo) {
+    if (used[node]/* || g.Connected(myNode, node)*/) {
         return;
     }
     used[node] = true;
@@ -169,9 +219,9 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
     uint dist[n];
     memset(dist, -1, sizeof(dist));     //filling dist[n] with inf
 
-    queue<State> q;
+    queue<State1> q;
     for (uint i = 0; i < n; ++i) {
-        q.push(State(i, inf));
+        q.push(State1(i, inf));
     }
 
     //bool used[n][n] = {false};
@@ -179,7 +229,7 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
     uint iter = 0;
 
     while (!q.empty()) {
-        queue<State> qn;    //queue new
+        queue<State1> qn;    //queue new
 
         while (!q.empty()) {
             uint node = q.front().node;
@@ -212,7 +262,7 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
                                 g[to].AddEdge(a, b);
                             }
                         } else {
-                            qn.push(State(to, chain, ttl - 1));
+                            qn.push(State1(to, chain, ttl - 1));
                         }
                     }
                 }
@@ -259,27 +309,57 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
             }
         }
 
+//        vector<bool> connectedHoods(n, false);
+//        MarkConnectedHoods(i, g[i], addrs, connectedHoods);
+
         for (uint j = 0; j < g[i].edges[i].size(); ++j) {
             const uint jto = g[i].edges[i][j];
 
-            bool used[n] = {false};
-            used[jto] = true;
-
             if (!SameColor(addrs[i], addrs[jto])) {
-                for (uint k = 0; k < g[i].edges[jto].size(); ++k) {
-                    const uint kto = g[i].edges[jto][k];
+                Hood myHood(g[i], jto, addrs);
 
-                    if (SameColor(addrs[jto], addrs[kto])) {
-                        EnterHood(kto, i, g[i], Hood(g[i], jto, addrs), used, addrs, res);
+                bool used[n] = {false};
+
+                set<State2> q;
+                q.insert(State2(jto, inf, 1));
+
+                while (!q.empty()) {
+                    State2 s = *q.begin();
+                    uint node = s.node;
+                    uint ttl = s.ttl;
+                    uint d = s.dist;
+                    q.erase(q.begin());
+
+                    if (!used[node]) {
+                        used[node] = true;
+
+                        Hood hood(g[i], node, addrs);
+                        if ((d > 1) && !hood.empty()) {
+                            myHood.connectTo(hood, i, res);
+                        } else {
+                            if (d > dist[node]) {
+                                ttl = min(ttl, dist[node]);
+                            }
+
+                            if (ttl > 1) {
+                                for (uint k = 0; k < g[i].edges[node].size(); ++k) {
+                                    const uint kto = g[i].edges[node][k];
+
+                                    if (!used[kto] && SameColor(addrs[jto], addrs[kto])) {
+                                        q.insert(State2(kto, ttl - 1, d + 1));
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-
     }
 
     res.Simplify();
 
+    //res.Print();
     myassert(res.Symmetric());
     return res;
 }

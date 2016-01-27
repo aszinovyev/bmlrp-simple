@@ -48,6 +48,7 @@ bool Graph::Symmetric() const {
             const uint to = edges[i][j];
 
             if (!Connected(to, i)) {
+                cerr << "Symm:  " << i << " " << to << endl;
                 return false;
             }
         }

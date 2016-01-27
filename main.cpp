@@ -8,14 +8,18 @@
 using namespace std;
 
 int main() {
-    Network net = Manual0();
+    Gen.seed(3097);
+    Network net = Random(13, 2);
+
+//    Gen.seed(426);
+//    Network net = Random(6, 2);
 
     Graph graph = net.graph;
     vector<Addr> addrs = net.addrs;
     vector<Point> points = net.points;
 
     for (uint i = 0; i < addrs.size(); ++i) {
-        cout << Binary(addrs[i]) << endl;
+        cout << i << "  " << Binary(addrs[i]) << endl;
     }
     cout << endl;
 

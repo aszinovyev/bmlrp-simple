@@ -44,32 +44,32 @@ Process <- function(data, draw, use_layout, ...) {
     graph
 }
 
-Random <- function(n, r_coeff, level = 0, filter = "", vlabel = 0, draw = T, layout = T, ...) {
+Random <- function(n, r_coeff, level = 0, filter = "", label = 0, draw = T, layout = T, ...) {
     SetSeed_R(Seed)
-    Process(Random_R(n, r_coeff, level, filter, vlabel), draw, layout, ...)
+    Process(Random_R(n, r_coeff, level, filter, label), draw, layout, ...)
 }
 
 Manual0 <- function(level = 0, filter = "", draw = T, layout = T) {
     SetSeed_R(Seed)
-    Process(Manual0_R(level, filter, 3), draw, layout)
+    Process(Manual0_R(level, filter), draw, layout)
 }
 
 Manual1 <- function(level = 0, filter = "", draw = T, layout = T) {
     SetSeed_R(Seed)
-    Process(Manual1_R(level, filter, 3), draw, layout)
+    Process(Manual1_R(level, filter), draw, layout)
 }
 
 Manual2 <- function(level = 0, filter = "", draw = T, layout = T) {
     SetSeed_R(Seed)
-    Process(Manual2_R(level, filter, 5), draw, layout)
+    Process(Manual2_R(level, filter), draw, layout)
 }
 
 Manual3 <- function(level = 0, filter = "", draw = T, layout = T) {
     SetSeed_R(Seed)
-    Process(Manual3_R(level, filter, 5), draw, layout)
+    Process(Manual3_R(level, filter), draw, layout)
 }
 
 Manual4 <- function(level = 0, filter = "", draw = T, layout = T) {
     SetSeed_R(Seed)
-    Process(Manual4_R(level, filter, 5), draw, layout)
+    Process(Manual4_R(level, filter), draw, layout)
 }

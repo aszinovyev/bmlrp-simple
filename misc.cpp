@@ -7,7 +7,7 @@
 default_random_engine Gen(0xABCD2345);
 
 string Binary(Addr a, uchar n, bool format) {
-    assert(n <= sizeof(a)*8);
+    myassert(n <= sizeof(a)*8);
 
     string res;
     for (char i = 0; i < n; ++i) {
