@@ -164,7 +164,7 @@ public:
             }
         }
 
-        if (myNode == best0) {
+        if ((best0 == myNode) && (best1 != myNode)) {
             appendTo.AddDirEdge(best0, best1);
         }
     }
@@ -173,39 +173,6 @@ public:
 
 bool SameColor(Addr a, Addr b) {
     return ~(a ^ b) & FirstBit;
-}
-
-//void MarkConnectedHoods(uint node, const Graph& g, const vector<Addr>& addrs, vector<bool>& output, uchar step = 0) {
-//    if (step == 3) {
-//        output[node] = true;
-//        return;
-//    }
-
-//    for (uint j = 0; j < g.edges[node].size(); ++j) {
-//        const uint to = g.edges[node][j];
-
-//        if (!SameColor(addrs[node], addrs[to])) {
-//            MarkConnectedHoods(to, g, addrs, output, step + 1);
-//        }
-//    }
-//}
-
-void EnterHood(uint node, uint myNode, const Graph& g, const Hood& myHood,
-               vector<bool>& used, const vector<Addr>& addrs, Graph& appendTo) {
-    if (used[node]/* || g.Connected(myNode, node)*/) {
-        return;
-    }
-    used[node] = true;
-
-    Hood hood(g, node, addrs);
-    if (!hood.empty()) {
-        myHood.connectTo(hood, myNode, appendTo);
-    } else {
-        for (uint i = 0; i < g.edges[node].size(); ++i) {
-            const uint to = g.edges[node][i];
-            EnterHood(to, myNode, g, myHood, used, addrs, appendTo);
-        }
-    }
 }
 
 // cl == current level
@@ -309,9 +276,6 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
             }
         }
 
-//        vector<bool> connectedHoods(n, false);
-//        MarkConnectedHoods(i, g[i], addrs, connectedHoods);
-
         for (uint j = 0; j < g[i].edges[i].size(); ++j) {
             const uint jto = g[i].edges[i][j];
 
@@ -359,7 +323,6 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
 
     res.Simplify();
 
-    //res.Print();
     myassert(res.Symmetric());
     return res;
 }
