@@ -66,34 +66,34 @@ public:
 
 bool SameColor(Addr a, Addr b);
 
-class Hood {
+class Neighborhood {
 public:
     uint node;
-    vector< pair<Addr, uint> > hood;
+    vector< pair<Addr, uint> > neighborhood;
 
-    Hood() {}
+    Neighborhood() {}
 
-    Hood(const Graph& graph, uint node, const vector<Addr>& addrs) {
-        Hood::node = node;
+    Neighborhood(const Graph& graph, uint node, const vector<Addr>& addrs) {
+        Neighborhood::node = node;
 
         for (uint i = 0; i < graph.edges[node].size(); ++i) {
             const uint to = graph.edges[node][i];
 
             if (!SameColor(addrs[node], addrs[to])) {
-                hood.push_back( make_pair(addrs[to], to) );
+                neighborhood.push_back( make_pair(addrs[to], to) );
             }
         }
 
-        sort(hood.begin(), hood.end());
+        sort(neighborhood.begin(), neighborhood.end());
     }
 
     bool empty() const {
-        return hood.empty();
+        return neighborhood.empty();
     }
 
     void connectInside(uint myNode, Addr myAddr, Graph& appendTo) {
         uint l = 0;
-        uint r = hood.size();
+        uint r = neighborhood.size();
 
         Addr bit = FirstBit;
         Addr mAddr = FirstBit;
@@ -102,18 +102,18 @@ public:
             myassert(bit != 0);
 
             uint m = l;
-            while ((m < r) && (hood[m].first < mAddr)) {
+            while ((m < r) && (neighborhood[m].first < mAddr)) {
                 ++m;
             }
 
             if ((m - l > 0) && (r - m > 0)) {
                 uint best_l = l;
                 uint best_r = m;
-                Addr bestDist = hood[l].first ^ hood[m].first;
+                Addr bestDist = neighborhood[l].first ^ neighborhood[m].first;
 
                 for (uint il = l; il < m; ++il) {
                     for (uint ir = m; ir < r; ++ir) {
-                        Addr dist = hood[il].first ^ hood[ir].first;
+                        Addr dist = neighborhood[il].first ^ neighborhood[ir].first;
 
                         if (dist < bestDist) {
                             bestDist = dist;
@@ -123,8 +123,8 @@ public:
                     }
                 }
 
-                uint a = hood[best_l].second;
-                uint b = hood[best_r].second;
+                uint a = neighborhood[best_l].second;
+                uint b = neighborhood[best_r].second;
                 if (myNode == a) {
                     appendTo.AddDirEdge(a, b);
                 } else if (myNode == b) {
@@ -144,22 +144,22 @@ public:
         }   // while (r - l > 1)
     }
 
-    void connectTo(const Hood& to, Addr myNode, Graph& appendTo) const {
+    void connectTo(const Neighborhood& to, Addr myNode, Graph& appendTo) const {
         myassert(!empty());
         myassert(!to.empty());
 
-        Addr bestDist = hood[0].first ^ to.hood[0].first;
-        uint best0 = hood[0].second;
-        uint best1 = to.hood[0].second;
+        Addr bestDist = neighborhood[0].first ^ to.neighborhood[0].first;
+        uint best0 = neighborhood[0].second;
+        uint best1 = to.neighborhood[0].second;
 
-        for (uint i = 0; i < hood.size(); ++i) {
-            for (uint j = 0; j < to.hood.size(); ++j) {
-                Addr dist = hood[i].first ^ to.hood[j].first;
+        for (uint i = 0; i < neighborhood.size(); ++i) {
+            for (uint j = 0; j < to.neighborhood.size(); ++j) {
+                Addr dist = neighborhood[i].first ^ to.neighborhood[j].first;
 
                 if (dist < bestDist) {
                     bestDist = dist;
-                    best0 = hood[i].second;
-                    best1 = to.hood[j].second;
+                    best0 = neighborhood[i].second;
+                    best1 = to.neighborhood[j].second;
                 }
             }
         }
@@ -271,8 +271,8 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
             if (SameColor(addrs[i], addrs[jto])) {
                 res.AddDirEdge(i, jto);
             } else {
-                Hood hood(g[i], jto, addrs);
-                hood.connectInside(i, addrs[i], res);
+                Neighborhood neighborhood(g[i], jto, addrs);
+                neighborhood.connectInside(i, addrs[i], res);
             }
         }
 
@@ -280,7 +280,7 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
             const uint jto = g[i].edges[i][j];
 
             if (!SameColor(addrs[i], addrs[jto])) {
-                Hood myHood(g[i], jto, addrs);
+                Neighborhood myNeighborhood(g[i], jto, addrs);
 
                 bool used[n] = {false};
 
@@ -297,9 +297,9 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
                     if (!used[node]) {
                         used[node] = true;
 
-                        Hood hood(g[i], node, addrs);
-                        if ((d > 1) && !hood.empty()) {
-                            myHood.connectTo(hood, i, res);
+                        Neighborhood neighborhood(g[i], node, addrs);
+                        if ((d > 1) && !neighborhood.empty()) {
+                            myNeighborhood.connectTo(neighborhood, i, res);
                         } else {
                             if (d > dist[node]) {
                                 ttl = min(ttl, dist[node]);
