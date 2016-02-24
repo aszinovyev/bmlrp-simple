@@ -17,8 +17,6 @@ public:
 
     bool Connected(uint a, uint b) const;
     bool Symmetric() const;
-
-    void Print() const;
 };
 
 #endif // GRAPH_H

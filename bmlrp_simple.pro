@@ -3,13 +3,13 @@ CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
-LIBS += -ligraph
-
 SOURCES += main.cpp \
     sim.cpp \
     misc.cpp \
     bmlrp.cpp \
-    graph.cpp
+    graph.cpp \
+    debug.cpp \
+    test.cpp
 
 HEADERS += \
     sim.h \
@@ -17,7 +17,8 @@ HEADERS += \
     misc.h \
     graph.h \
     stable.h \
-    myassert.h
+    debug.h \
+    test.h
 
 OTHER_FILES += \
     export.cpp \

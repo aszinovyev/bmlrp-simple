@@ -1,10 +1,10 @@
 #include "stable.h"
-#include "myassert.h"
+#include "misc.h"
 #include "graph.h"
 #include "bmlrp.h"
-#include "misc.h"
 #include "sim.h"
-
+#include "test.h"
+#include "debug.h"
 
 class State1 {
 public:
@@ -180,7 +180,10 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
     const uint n = clGraph.n;
     const uint inf = (uint)-1;
 
-    Graph g[n](n);
+    Graph g[n];
+    for (uint i = 0; i < n; ++i) {
+        g[i] = Graph(n);
+    }
 
     // min dist to opposite color
     uint dist[n];
@@ -282,7 +285,7 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
             if (!SameColor(addrs[i], addrs[jto])) {
                 Neighborhood myNeighborhood(g[i], jto, addrs);
 
-                bool used[n] = {false};
+                vector<bool> used(n, false);
 
                 set<State2> q;
                 q.insert(State2(jto, inf, 1));
@@ -323,24 +326,24 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
 
     res.Simplify();
 
-    myassert(res.Symmetric());
     return res;
 }
 
-Graph GetLevel(const Graph& level0, const vector<Addr>& addrs, int level) {
+Graph GetLevel(const Graph& level0, const vector<Addr>& addrs, uint level) {
+    myassert(level <= sizeof(Addr)*8);
+    GraphIsConnected(level0);
+
     Graph res = level0;
-    myassert(res.Symmetric());
 
     vector<Addr> addrs_copy = addrs;
 
-    while (level > 0) {
+    for (uint leveli = 1; leveli <= level; ++leveli) {
         res = NextLevel(res, addrs_copy);
+        TestNextLevel(res, addrs, leveli);
 
         for (uint i = 0; i < addrs_copy.size(); ++i) {
             addrs_copy[i] <<= 1;
         }
-
-        --level;
     }
 
     return res;

@@ -1,10 +1,10 @@
 #include <Rcpp.h>
 #include "stable.h"
 
-#include "myassert.h"
+#include "misc.h"
 #include "graph.h"
 #include "bmlrp.h"
-#include "misc.h"
+#include "debug.h"
 #include "sim.h"
 #include "export.h"
 
