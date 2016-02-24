@@ -49,6 +49,11 @@ Random <- function(n, r_coeff, level = 0, filter = "", label = 0, draw = T, layo
     Process(Random_R(n, r_coeff, level, filter, label), draw, layout, ...)
 }
 
+Overlay <- function(n, m, level = 0, filter = "", label = 0, draw = T, layout = T, ...) {
+    SetSeed_R(Seed)
+    Process(Overlay_R(n, m, level, filter, label), draw, layout, ...)
+}
+
 Manual0 <- function(level = 0, filter = "", draw = T, layout = T) {
     SetSeed_R(Seed)
     Process(Manual0_R(level, filter), draw, layout)

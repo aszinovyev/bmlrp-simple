@@ -20,6 +20,11 @@ Network_R Random_R(int n, float r_coeff, int level, string filter, int label) {
 }
 
 // [[Rcpp::export]]
+Network_R Overlay_R(int n, float m, int level, string filter, int label) {
+    return Network_R( GetNetworkLevel(Overlay(n, m), level), filter, label);
+}
+
+// [[Rcpp::export]]
 Network_R Manual0_R(int level, string filter) {
     return Network_R( GetNetworkLevel(Manual0(), level), filter, 5 );
 }
