@@ -37,7 +37,7 @@ public:
 
 Network GetNetworkLevel(const Network& net_level0, int level);
 
-Network Random(int n, float r_coeff);
+Network Random(int n, float r_coeff, float random_edges_ratio_nodes);
 Network Overlay(int n, float deg);
 Network Manual0();
 Network Manual1();

@@ -62,10 +62,12 @@ bool Close(Point a, Point b, float r) {
     return Sqr(a.x - b.x) + Sqr(a.y - b.y) <= Sqr(r);
 }
 
-Network Random(int n, float r_coeff) {
-    float r = r_coeff / sqrt(n);
+Network Random(int n, float r_coeff, float random_edges_ratio_nodes) {
+    const float r = r_coeff / sqrt(n);
+    const int random_edges = n * random_edges_ratio_nodes / 2;
 
     uniform_real_distribution<float> distFloat;
+    uniform_int_distribution<int> distInt;
 
     vector<Addr> addrs(n);
     vector<Point> points(n);
@@ -88,6 +90,16 @@ Network Random(int n, float r_coeff) {
     }
 
     ScalePoints(points);
+
+    for (int i = 0; i < random_edges; ++i) {
+        int a = distInt(Gen) % n;
+        int b = distInt(Gen) % n;
+        myassert(a >= 0 && b >= 0);
+
+        if (!res.Connected(a, b)) {
+            res.AddEdge(a, b);
+        }
+    }
 
     return Network(res, addrs, points);
 }

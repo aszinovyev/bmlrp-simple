@@ -44,9 +44,11 @@ Process <- function(data, draw, use_layout, ...) {
     graph
 }
 
-Random <- function(n, r_coeff, level = 0, filter = "", label = 0, draw = T, layout = T, ...) {
+Random <- function(n, r_coeff, random_edges_ratio_nodes = 0, 
+                   level = 0, filter = "", label = 0, draw = T, layout = T, ...) 
+{
     SetSeed_R(Seed)
-    Process(Random_R(n, r_coeff, level, filter, label), draw, layout, ...)
+    Process(Random_R(n, r_coeff, random_edges_ratio_nodes, level, filter, label), draw, layout, ...)
 }
 
 Overlay <- function(n, m, level = 0, filter = "", label = 0, draw = T, layout = T, ...) {

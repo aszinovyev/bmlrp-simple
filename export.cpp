@@ -15,8 +15,10 @@ void SetSeed_R(uint seed) {
 }
 
 // [[Rcpp::export]]
-Network_R Random_R(int n, float r_coeff, int level, string filter, int label) {
-    return Network_R( GetNetworkLevel(Random(n, r_coeff), level), filter, label);
+Network_R Random_R(int n, float r_coeff, float random_edges_ratio_nodes,
+                                         int level, string filter, int label)
+{
+    return Network_R( GetNetworkLevel(Random(n, r_coeff, random_edges_ratio_nodes), level), filter, label);
 }
 
 // [[Rcpp::export]]

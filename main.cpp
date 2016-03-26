@@ -9,7 +9,7 @@ using namespace std;
 
 int main() {
     Gen.seed(3097);
-    Network net = Random(13, 2);
+    Network net = Random(13, 2, 0);
 
 //    Gen.seed(426);
 //    Network net = Random(6, 2);

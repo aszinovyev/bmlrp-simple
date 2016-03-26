@@ -16,7 +16,6 @@ HEADERS += \
     bmlrp.h \
     misc.h \
     graph.h \
-    stable.h \
     debug.h \
     test.h
 
@@ -24,4 +23,4 @@ OTHER_FILES += \
     export.cpp \
     export.h
 
-PRECOMPILED_HEADER += stable.h
+PRECOMPILED_HEADER = stable.h
