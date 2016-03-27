@@ -6,10 +6,28 @@
 #include "test.h"
 #include "debug.h"
 
+// node in directed acyclic graph
+class DAG_Node {
+public:
+    uint node;
+    shared_ptr<DAG_Node> parent;
+
+    uint Head() {
+        if (!parent) {
+            return node;
+        }
+        return parent->Head();
+    }
+
+    bool Find(uint node) {
+        return ( (DAG_Node::node == node) || (parent && parent->Find(node)) );
+    }
+};
+
 class State1 {
 public:
     uint node;  //current position
-    vector<uint> chain;
+    shared_ptr<DAG_Node> chain;
     uint ttl;
 
     State1() {
@@ -22,7 +40,7 @@ public:
         State1::ttl = ttl;
     }
 
-    State1(uint node, vector<uint> chain, uint ttl) {
+    State1(uint node, shared_ptr<DAG_Node> chain, uint ttl) {
         State1::node = node;
         State1::chain = chain;
         State1::ttl = ttl;
@@ -171,6 +189,13 @@ public:
 };
 
 
+shared_ptr<DAG_Node> DAG_Append(shared_ptr<DAG_Node> dagnode, uint node) {
+    shared_ptr<DAG_Node> res(new DAG_Node);
+    res->node = node;
+    res->parent = dagnode;
+    return res;
+}
+
 bool SameColor(Addr a, Addr b) {
     return ~(a ^ b) & FirstBit;
 }
@@ -204,8 +229,7 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
         while (!q.empty()) {
             uint node = q.front().node;
 
-            vector<uint> chain = q.front().chain;
-            chain.push_back(node);
+            shared_ptr<DAG_Node> chain = DAG_Append(q.front().chain, node);
 
             uint ttl = q.front().ttl;
             if (iter > dist[node]) {
@@ -222,14 +246,14 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
                 for (uint i = 0; i < clGraph.edges[node].size(); ++i) {
                     const uint to = clGraph.edges[node][i];
 
-                    // check that neighbor to is not in the chain
-                    if (find(chain.cbegin(), chain.cend(), to) == chain.cend()) {
-                        if (SameColor(addrs[chain[0]], addrs[to])) {
-                            for (uint j = 0; j < chain.size() - 1; ++j) {
-                                uint a = chain[j];
-                                uint b = chain[j + 1];
+                    // check that neighbor `to` is not in the `chain`
+                    if (!chain->Find(to)) {
+                        if (SameColor(addrs[chain->Head()], addrs[to])) {
+                            shared_ptr<DAG_Node> current = chain;
 
-                                g[to].AddEdge(a, b);
+                            while(current->parent) {
+                                g[to].AddEdge(current->parent->node, current->node);
+                                current = current->parent;
                             }
                         } else {
                             qn.push(State1(to, chain, ttl - 1));

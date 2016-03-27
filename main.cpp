@@ -8,6 +8,9 @@
 using namespace std;
 
 int main() {
+    Network net = Random(8000, 2, 0.1);
+    GetLevel(net.graph, net.addrs, 1);
+/*
     Gen.seed(3097);
     Network net = Random(13, 2, 0);
 
@@ -31,6 +34,6 @@ int main() {
     PrintGraph(graph);
     cout << endl;
     PrintGraph(GetLevel(graph, addrs, 1));
-
+*/
     return 0;
 }
