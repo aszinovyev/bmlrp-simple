@@ -51,6 +51,11 @@ Random <- function(n, r_coeff, random_edges_ratio_nodes = 0,
     Process(Random_R(n, r_coeff, random_edges_ratio_nodes, level, filter, label), draw, layout, ...)
 }
 
+RandomNodeDegrees <- function(n, r_coeff, random_edges_ratio_nodes = 0, max_level = 0) {
+    SetSeed_R(Seed)
+    RandomNodeDegrees_R(n, r_coeff, random_edges_ratio_nodes, max_level)
+}
+
 Overlay <- function(n, m, level = 0, filter = "", label = 0, draw = T, layout = T, ...) {
     SetSeed_R(Seed)
     Process(Overlay_R(n, m, level, filter, label), draw, layout, ...)

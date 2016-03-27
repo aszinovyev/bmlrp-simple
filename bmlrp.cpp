@@ -354,7 +354,10 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
 
 Graph GetLevel(const Graph& level0, const vector<Addr>& addrs, uint level) {
     myassert(level <= sizeof(Addr)*8);
-    GraphIsConnected(level0);
+    if (!IsGraphConnected(level0)) {
+        cerr << "input graph is not connected" << endl;
+        myassert(0);
+    }
 
     Graph res = level0;
 

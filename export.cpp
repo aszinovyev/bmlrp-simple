@@ -22,6 +22,11 @@ Network_R Random_R(int n, float r_coeff, float random_edges_ratio_nodes,
 }
 
 // [[Rcpp::export]]
+vector<float> RandomNodeDegrees_R(int n, float r_coeff, float random_edges_ratio_nodes, int max_level) {
+    return GetAverageNodeDegrees( Random(n, r_coeff, random_edges_ratio_nodes), max_level );
+}
+
+// [[Rcpp::export]]
 Network_R Overlay_R(int n, float m, int level, string filter, int label) {
     return Network_R( GetNetworkLevel(Overlay(n, m), level), filter, label);
 }

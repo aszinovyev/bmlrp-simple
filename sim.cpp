@@ -2,6 +2,7 @@
 #include "misc.h"
 #include "graph.h"
 #include "bmlrp.h"
+#include "test.h"
 #include "debug.h"
 #include "sim.h"
 
@@ -11,24 +12,32 @@ Network GetNetworkLevel(const Network& net_level0, int level) {
                     net_level0.addrs, net_level0.points);
 }
 
-vector<float> GetAverageNodeDegrees(const Network& net_level0, uint maxlevel) {
-    myassert(maxlevel <= sizeof(Addr)*8);
-    GraphIsConnected(net_level0.graph);
+vector<float> GetAverageNodeDegrees(const Network& net_level0, uint max_level) {
+    myassert(max_level <= sizeof(Addr)*8);
+    if (!IsGraphConnected(net_level0.graph)) {
+        cerr << "input graph is not connected" << endl;
+        myassert(0);
+    }
 
     Graph graph = net_level0.graph;
 
     vector<float> res;
+    res.push_back( (float)graph.edges.size() / graph.n );
 
     vector<Addr> addrs_copy = net_level0.addrs;
 
-    for (uint leveli = 1; leveli <= level; ++leveli) {
+    for (uint leveli = 1; leveli <= max_level; ++leveli) {
         graph = NextLevel(graph, addrs_copy);
-        TestNextLevel(graph, addrs, leveli);
+        TestNextLevel(graph, net_level0.addrs, leveli);
+
+        res.push_back( (float)graph.edges.size() / graph.n );
 
         for (uint i = 0; i < addrs_copy.size(); ++i) {
             addrs_copy[i] <<= 1;
         }
     }
+
+    return res;
 }
 
 Addr GenAddr(Addr prefix, uchar prefix_len = 1) {

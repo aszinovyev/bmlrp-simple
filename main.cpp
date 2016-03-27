@@ -8,8 +8,13 @@
 using namespace std;
 
 int main() {
-    Network net = Random(8000, 2, 0.1);
-    GetLevel(net.graph, net.addrs, 1);
+    vector<float> nodeDegrees = GetAverageNodeDegrees(Random(1000, 2, 0), 10);
+
+    for (uint i = 0; i < nodeDegrees.size(); ++i) {
+        cout << nodeDegrees[i] << ",  ";
+    }
+    cout << endl;
+
 /*
     Gen.seed(3097);
     Network net = Random(13, 2, 0);
