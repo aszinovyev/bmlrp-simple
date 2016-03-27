@@ -41,7 +41,7 @@ vector<float> GetAverageNodeDegrees(const Network& net_level0, uint max_level) {
 }
 
 Addr GenAddr(Addr prefix, uchar prefix_len = 1) {
-    uniform_int_distribution<Addr> dist(0, ~((Addr)-1 >> prefix_len));
+    uniform_int_distribution<Addr> dist(0, ((Addr)-1) >> prefix_len);
     return (prefix << (sizeof(prefix)*8 - prefix_len)) + dist(Gen);
 }
 
@@ -277,6 +277,52 @@ Network Manual4() {
     vector<Point> points = { Point(0,2), Point(0.5,1), Point(1.5,1), Point(0,0),
                              Point(1,0), Point(2,0), Point(3,0), Point(4,-1),
                              Point(5,-1), Point(0.5,-1)
+                           };
+    ScalePoints(points);
+
+    return Network(graph, addrs, points);
+}
+
+Network Manual5() {
+    Graph graph(16);
+
+    graph.AddEdgeBidirectional(0, 1);
+    graph.AddEdgeBidirectional(1, 2);
+    graph.AddEdgeBidirectional(2, 3);
+    graph.AddEdgeBidirectional(4, 5);
+    graph.AddEdgeBidirectional(5, 6);
+    graph.AddEdgeBidirectional(6, 7);
+    graph.AddEdgeBidirectional(8, 9);
+    graph.AddEdgeBidirectional(9, 10);
+    graph.AddEdgeBidirectional(10, 11);
+    graph.AddEdgeBidirectional(12, 13);
+    graph.AddEdgeBidirectional(13, 14);
+    graph.AddEdgeBidirectional(14, 15);
+
+    graph.AddEdgeBidirectional(0, 4);
+    graph.AddEdgeBidirectional(1, 5);
+    graph.AddEdgeBidirectional(2, 6);
+    graph.AddEdgeBidirectional(3, 7);
+    graph.AddEdgeBidirectional(4, 8);
+    graph.AddEdgeBidirectional(5, 9);
+    graph.AddEdgeBidirectional(6, 10);
+    graph.AddEdgeBidirectional(7, 11);
+    graph.AddEdgeBidirectional(8, 12);
+    graph.AddEdgeBidirectional(9, 13);
+    graph.AddEdgeBidirectional(10, 14);
+    graph.AddEdgeBidirectional(11, 15);
+
+    vector<Addr> addrs = { GenAddr(28, 5), GenAddr(12, 5), GenAddr(18, 5), GenAddr(25, 5),
+                           GenAddr(17, 5), GenAddr(31, 5), GenAddr(10, 5), GenAddr(6, 5),
+                           GenAddr(22, 5), GenAddr(11, 5), GenAddr(26, 5), GenAddr(9, 5),
+                           GenAddr(27, 5), GenAddr(24, 5), GenAddr(7, 5), GenAddr(8, 5)
+                         };
+    cout << Binary(GenAddr(28, 5)) << endl;
+
+    vector<Point> points = { Point(0,0), Point(1,0), Point(2,0), Point(3,0),
+                             Point(0.1,1), Point(1.1,1), Point(2.1,1), Point(3.1,1),
+                             Point(0,2), Point(1,2), Point(2,2), Point(3,2),
+                             Point(0.1,3), Point(1.1,3), Point(2.1,3), Point(3.1,3)
                            };
     ScalePoints(points);
 

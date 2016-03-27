@@ -46,5 +46,6 @@ Network Manual1();
 Network Manual2();
 Network Manual3();
 Network Manual4();
+Network Manual5();
 
 #endif // SIM_H

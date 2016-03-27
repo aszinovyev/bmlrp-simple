@@ -55,3 +55,8 @@ Network_R Manual3_R(int level, string filter) {
 Network_R Manual4_R(int level, string filter) {
     return Network_R( GetNetworkLevel(Manual4(), level), filter, 5 );
 }
+
+// [[Rcpp::export]]
+Network_R Manual5_R(int level, string filter) {
+    return Network_R( GetNetworkLevel(Manual5(), level), filter, 5 );
+}

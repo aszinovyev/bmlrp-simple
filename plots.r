@@ -85,3 +85,8 @@ Manual4 <- function(level = 0, filter = "", draw = T, layout = T) {
     SetSeed_R(Seed)
     Process(Manual4_R(level, filter), draw, layout)
 }
+
+Manual5 <- function(level = 0, filter = "", draw = T, layout = T) {
+    SetSeed_R(Seed)
+    Process(Manual5_R(level, filter), draw, layout)
+}
