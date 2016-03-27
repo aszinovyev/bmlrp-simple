@@ -11,6 +11,26 @@ Network GetNetworkLevel(const Network& net_level0, int level) {
                     net_level0.addrs, net_level0.points);
 }
 
+vector<float> GetAverageNodeDegrees(const Network& net_level0, uint maxlevel) {
+    myassert(maxlevel <= sizeof(Addr)*8);
+    GraphIsConnected(net_level0.graph);
+
+    Graph graph = net_level0.graph;
+
+    vector<float> res;
+
+    vector<Addr> addrs_copy = net_level0.addrs;
+
+    for (uint leveli = 1; leveli <= level; ++leveli) {
+        graph = NextLevel(graph, addrs_copy);
+        TestNextLevel(graph, addrs, leveli);
+
+        for (uint i = 0; i < addrs_copy.size(); ++i) {
+            addrs_copy[i] <<= 1;
+        }
+    }
+}
+
 Addr GenAddr(Addr prefix, uchar prefix_len = 1) {
     uniform_int_distribution<Addr> dist(0, ~((Addr)-1 >> prefix_len));
     return (prefix << (sizeof(prefix)*8 - prefix_len)) + dist(Gen);
@@ -84,7 +104,7 @@ Network Random(int n, float r_coeff, float random_edges_ratio_nodes) {
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
             if ( (i != j) && Close(points[i], points[j], r) ) {
-                res.edges[i].push_back(j);
+                res.AddEdge(i, j);
             }
         }
     }
@@ -96,9 +116,7 @@ Network Random(int n, float r_coeff, float random_edges_ratio_nodes) {
         int b = distInt(Gen) % n;
         myassert(a >= 0 && b >= 0);
 
-        if (!res.Connected(a, b)) {
-            res.AddEdge(a, b);
-        }
+        res.AddEdgeBidirectional(a, b);
     }
 
     return Network(res, addrs, points);
@@ -123,7 +141,7 @@ Network Overlay(int n, float deg) {
     for (int i = 0; i < n; ++i) {
         for (int j = i + 1; j < n; ++j) {
             if (distFloat(Gen) < prob) {
-                res.AddEdge(i, j);
+                res.AddEdgeBidirectional(i, j);
             }
         }
     }
@@ -135,11 +153,11 @@ Network Overlay(int n, float deg) {
 
 Network Manual0() {
     Graph graph(5);
-    graph.edges[0] = {1,2,4};
-    graph.edges[1] = {0};
-    graph.edges[2] = {0,3};
-    graph.edges[3] = {2,4};
-    graph.edges[4] = {3,0};
+    graph.AddEdgeBidirectional(0, 1);
+    graph.AddEdgeBidirectional(0, 2);
+    graph.AddEdgeBidirectional(0, 4);
+    graph.AddEdgeBidirectional(2, 3);
+    graph.AddEdgeBidirectional(3, 4);
 
     vector<Addr> addrs = { GenAddr(0), GenAddr(0), GenAddr(1), GenAddr(0), GenAddr(1) };
 
@@ -151,12 +169,11 @@ Network Manual0() {
 
 Network Manual1() {
     Graph graph(6);
-    graph.edges[0] = {1};
-    graph.edges[1] = {0,2};
-    graph.edges[2] = {1,3,5};
-    graph.edges[3] = {2,4};
-    graph.edges[4] = {3};
-    graph.edges[5] = {2};
+    graph.AddEdgeBidirectional(0, 1);
+    graph.AddEdgeBidirectional(1, 2);
+    graph.AddEdgeBidirectional(2, 3);
+    graph.AddEdgeBidirectional(2, 5);
+    graph.AddEdgeBidirectional(3, 4);
 
     vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(0),
                            GenAddr(1), GenAddr(1)
@@ -172,20 +189,20 @@ Network Manual1() {
 
 Network Manual2() {
     Graph graph(14);
-    graph.edges[0] = {1};
-    graph.edges[1] = {0,2};
-    graph.edges[2] = {1,3};
-    graph.edges[3] = {2,4};
-    graph.edges[4] = {3,5,9};
-    graph.edges[5] = {4,6};
-    graph.edges[6] = {5,7,10};
-    graph.edges[7] = {6,8};
-    graph.edges[8] = {7};
-    graph.edges[9] = {4,11};
-    graph.edges[10] = {6,12};
-    graph.edges[11] = {9,13};
-    graph.edges[12] = {10,13};
-    graph.edges[13] = {11,12};
+    graph.AddEdgeBidirectional(0, 1);
+    graph.AddEdgeBidirectional(1, 2);
+    graph.AddEdgeBidirectional(2, 3);
+    graph.AddEdgeBidirectional(3, 4);
+    graph.AddEdgeBidirectional(4, 5);
+    graph.AddEdgeBidirectional(4, 9);
+    graph.AddEdgeBidirectional(5, 6);
+    graph.AddEdgeBidirectional(6, 7);
+    graph.AddEdgeBidirectional(6, 10);
+    graph.AddEdgeBidirectional(7, 8);
+    graph.AddEdgeBidirectional(9, 11);
+    graph.AddEdgeBidirectional(10, 12);
+    graph.AddEdgeBidirectional(11, 13);
+    graph.AddEdgeBidirectional(12, 13);
 
     vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(0),
                            GenAddr(0), GenAddr(0), GenAddr(0), GenAddr(0), //GenAddr(1),
@@ -205,15 +222,15 @@ Network Manual2() {
 
 Network Manual3() {
     Graph graph(9);
-    graph.edges[0] = {1};
-    graph.edges[1] = {0,2,3};
-    graph.edges[2] = {1,5};
-    graph.edges[3] = {1,4};
-    graph.edges[4] = {3,5};
-    graph.edges[5] = {2,4,6};
-    graph.edges[6] = {5,7};
-    graph.edges[7] = {6,8};
-    graph.edges[8] = {7};
+    graph.AddEdgeBidirectional(0, 1);
+    graph.AddEdgeBidirectional(1, 2);
+    graph.AddEdgeBidirectional(1, 3);
+    graph.AddEdgeBidirectional(2, 5);
+    graph.AddEdgeBidirectional(3, 4);
+    graph.AddEdgeBidirectional(4, 5);
+    graph.AddEdgeBidirectional(5, 6);
+    graph.AddEdgeBidirectional(6, 7);
+    graph.AddEdgeBidirectional(7, 8);
 
     vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(1),
                            GenAddr(0), GenAddr(0), GenAddr(0), GenAddr(0),
@@ -231,16 +248,16 @@ Network Manual3() {
 
 Network Manual4() {
     Graph graph(10);
-    graph.edges[0] = {1};
-    graph.edges[1] = {0,2,3};
-    graph.edges[2] = {1,5};
-    graph.edges[3] = {1,4};
-    graph.edges[4] = {3,5,9};
-    graph.edges[5] = {2,4,6};
-    graph.edges[6] = {5,7};
-    graph.edges[7] = {6,8};
-    graph.edges[8] = {7};
-    graph.edges[9] = {4};
+    graph.AddEdgeBidirectional(0, 1);
+    graph.AddEdgeBidirectional(1, 2);
+    graph.AddEdgeBidirectional(1, 3);
+    graph.AddEdgeBidirectional(2, 5);
+    graph.AddEdgeBidirectional(3, 4);
+    graph.AddEdgeBidirectional(4, 5);
+    graph.AddEdgeBidirectional(4, 9);
+    graph.AddEdgeBidirectional(5, 6);
+    graph.AddEdgeBidirectional(6, 7);
+    graph.AddEdgeBidirectional(7, 8);
 
     vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(1),
                            GenAddr(0), GenAddr(0), GenAddr(0), GenAddr(0),

@@ -68,8 +68,10 @@ private:
         vector<uint> res;
 
         for (uint i = 0; i < graph.n; ++i) {
-            for (uint j = 0; j < graph.edges[i].size(); ++j) {
-                uint to = graph.edges[i][j];
+            vector<uint> succ = graph.GetDirectSuccessors(i);
+
+            for (uint j = 0; j < succ.size(); ++j) {
+                uint to = succ[j];
 
                 if ((to > i) && (include[i] != -1) && (include[to] != -1)) {
                     res.push_back(include[i]);

@@ -7,7 +7,6 @@ SOURCES += main.cpp \
     sim.cpp \
     misc.cpp \
     bmlrp.cpp \
-    graph.cpp \
     debug.cpp \
     test.cpp
 

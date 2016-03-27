@@ -94,8 +94,9 @@ public:
     Neighborhood(const Graph& graph, uint node, const vector<Addr>& addrs) {
         Neighborhood::node = node;
 
-        for (uint i = 0; i < graph.edges[node].size(); ++i) {
-            const uint to = graph.edges[node][i];
+        vector<uint> succ = graph.GetDirectSuccessors(node);
+        for (uint i = 0; i < succ.size(); ++i) {
+            const uint to = succ[i];
 
             if (!SameColor(addrs[node], addrs[to])) {
                 neighborhood.push_back( make_pair(addrs[to], to) );
@@ -144,9 +145,9 @@ public:
                 uint a = neighborhood[best_l].second;
                 uint b = neighborhood[best_r].second;
                 if (myNode == a) {
-                    appendTo.AddDirEdge(a, b);
+                    appendTo.AddEdge(a, b);
                 } else if (myNode == b) {
-                    appendTo.AddDirEdge(b, a);
+                    appendTo.AddEdge(b, a);
                 }
             }
 
@@ -183,7 +184,7 @@ public:
         }
 
         if ((best0 == myNode) && (best1 != myNode)) {
-            appendTo.AddDirEdge(best0, best1);
+            appendTo.AddEdge(best0, best1);
         }
     }
 };
@@ -243,8 +244,9 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
             }
 
             if (ttl > 0) {
-                for (uint i = 0; i < clGraph.edges[node].size(); ++i) {
-                    const uint to = clGraph.edges[node][i];
+                vector<uint> succ = clGraph.GetDirectSuccessors(node);
+                for (uint i = 0; i < succ.size(); ++i) {
+                    const uint to = succ[i];
 
                     // check that neighbor `to` is not in the `chain`
                     if (!chain->Find(to)) {
@@ -252,7 +254,7 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
                             shared_ptr<DAG_Node> current = chain;
 
                             while(current->parent) {
-                                g[to].AddEdge(current->parent->node, current->node);
+                                g[to].AddEdgeBidirectional(current->parent->node, current->node);
                                 current = current->parent;
                             }
                         } else {
@@ -269,16 +271,12 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
 
     // adding direct connections in g
     for (uint i = 0; i < n; ++i) {
-        for (uint j = 0; j < clGraph.edges[i].size(); ++j) {
-            const uint to = clGraph.edges[i][j];
+        vector<uint> succ = clGraph.GetDirectSuccessors(i);
+        for (uint j = 0; j < succ.size(); ++j) {
+            const uint to = succ[j];
 
-            g[i].AddEdge(i, to);
+            g[i].AddEdgeBidirectional(i, to);
         }
-    }
-
-    // removing duplicates in graphs g[i]
-    for (uint i = 0; i < n; ++i) {
-        g[i].Simplify();
     }
 
     // print g
@@ -292,19 +290,21 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
     Graph res(n);
 
     for (uint i = 0; i < n; ++i) {
-        for (uint j = 0; j < g[i].edges[i].size(); ++j) {
-            const uint jto = g[i].edges[i][j];
+        vector<uint> succ = g[i].GetDirectSuccessors(i);
+
+        for (uint j = 0; j < succ.size(); ++j) {
+            const uint jto = succ[j];
 
             if (SameColor(addrs[i], addrs[jto])) {
-                res.AddDirEdge(i, jto);
+                res.AddEdge(i, jto);
             } else {
                 Neighborhood neighborhood(g[i], jto, addrs);
                 neighborhood.connectInside(i, addrs[i], res);
             }
         }
 
-        for (uint j = 0; j < g[i].edges[i].size(); ++j) {
-            const uint jto = g[i].edges[i][j];
+        for (uint j = 0; j < succ.size(); ++j) {
+            const uint jto = succ[j];
 
             if (!SameColor(addrs[i], addrs[jto])) {
                 Neighborhood myNeighborhood(g[i], jto, addrs);
@@ -333,8 +333,9 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
                             }
 
                             if (ttl > 1) {
-                                for (uint k = 0; k < g[i].edges[node].size(); ++k) {
-                                    const uint kto = g[i].edges[node][k];
+                                vector<uint> succk = g[i].GetDirectSuccessors(node);
+                                for (uint k = 0; k < succk.size(); ++k) {
+                                    const uint kto = succk[k];
 
                                     if (!used[kto] && SameColor(addrs[jto], addrs[kto])) {
                                         q.insert(State2(kto, ttl - 1, d + 1));
@@ -347,8 +348,6 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
             }
         }
     }
-
-    res.Simplify();
 
     return res;
 }
