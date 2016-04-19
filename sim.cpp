@@ -131,35 +131,6 @@ Network Random(int n, float r_coeff, float random_edges_ratio_nodes) {
     return Network(res, addrs, points);
 }
 
-Network Overlay(int n, float deg) {
-    uniform_real_distribution<float> distFloat;
-
-    vector<Addr> addrs(n);
-    vector<Point> points(n);
-
-    for (int i = 0; i < n; ++i) {
-        addrs[i] = GenAddr();
-
-        points[i].x = distFloat(Gen);
-        points[i].y = distFloat(Gen);
-    }
-
-    Graph res(n);
-
-    float prob = deg / (n - 1);
-    for (int i = 0; i < n; ++i) {
-        for (int j = i + 1; j < n; ++j) {
-            if (distFloat(Gen) < prob) {
-                res.AddEdgeBidirectional(i, j);
-            }
-        }
-    }
-
-    ScalePoints(points);
-
-    return Network(res, addrs, points);
-}
-
 Network Manual0() {
     Graph graph(5);
     graph.AddEdgeBidirectional(0, 1);
