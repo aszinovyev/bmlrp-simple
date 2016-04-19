@@ -9,7 +9,7 @@ Generate the Average Node Degree figure from the paper:
 
 Run manually:
   
-    R
+    $ R
     > source('control.r')
     
     # Distribute 10 nodes uniformly on a [0;1]x[0;1] map;
