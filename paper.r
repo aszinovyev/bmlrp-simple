@@ -6,13 +6,14 @@ source('control.r')
 N <- 2^14
 R_coeff <- 2
 
+Filename <- "degrees.pdf"
 Cex <- 1.3
 
 ###
 
 maxlevel <- floor( log(N, 2) )
 
-pdf("degrees.pdf", 7, 7)
+pdf(Filename, 7, 7)
 
 x <- 0:maxlevel
 
@@ -31,3 +32,5 @@ legend("topright", legend = c("0%", "1%", "5%", "10%"), pch = c(1, 23, 24, 25),
                    col = c("black", "blue", "orange", "red"), cex = Cex)
 
 dev.off()
+
+cat( paste0("Written to ", Filename, '\n') )
