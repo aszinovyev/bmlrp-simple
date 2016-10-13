@@ -6,29 +6,31 @@
 #include "debug.h"
 #include "sim.h"
 
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::uniform_int_distribution;
+using std::uniform_real_distribution;
 
 Network GetNetworkLevel(const Network& net_level0, int level) {
     return Network( GetLevel(net_level0.graph, net_level0.addrs, level),
                     net_level0.addrs, net_level0.points);
 }
 
-vector<float> GetAverageNodeDegrees(const Network& net_level0, uint max_level) {
-    myassert(max_level <= sizeof(Addr)*8);
-    if (!IsGraphConnected(net_level0.graph)) {
-        cerr << "input graph is not connected" << endl;
-        myassert(0);
-    }
+std::vector<float> GetAverageNodeDegrees(const Network& net_level0, int max_level) {
+    myassert(max_level <= (int)sizeof(Addr) * 8);
+    myassert(IsGraphConnected(net_level0.graph));
 
     Graph graph = net_level0.graph;
 
-    vector<float> res;
+    std::vector<float> res;
     res.push_back( (float)graph.edges.size() / graph.n );
 
-    vector<Addr> addrs_copy = net_level0.addrs;
+    std::vector<Addr> addrs_copy = net_level0.addrs;
 
-    for (uint leveli = 1; leveli <= max_level; ++leveli) {
+    for (int level_i = 1; level_i <= max_level; ++level_i) {
         graph = NextLevel(graph, addrs_copy);
-        TestNextLevel(graph, net_level0.addrs, leveli);
+        TestNextLevel(graph, net_level0.addrs, level_i);
 
         res.push_back( (float)graph.edges.size() / graph.n );
 
@@ -51,7 +53,7 @@ Addr GenAddr() {
 }
 
 // to [0,1] x [0,1]
-void ScalePoints(vector<Point>& points) {
+void ScalePoints(std::vector<Point>& points) {
     myassert(!points.empty());
 
     float minx = points[0].x;
@@ -92,14 +94,16 @@ bool Close(Point a, Point b, float r) {
 }
 
 Network Random(int n, float r_coeff, float random_edges_ratio_nodes) {
+    cerr << "Generating graph" << endl;
+
     const float r = r_coeff / sqrt(n);
     const int random_edges = n * random_edges_ratio_nodes / 2;
 
     uniform_real_distribution<float> distFloat;
     uniform_int_distribution<int> distInt;
 
-    vector<Addr> addrs(n);
-    vector<Point> points(n);
+    std::vector<Addr> addrs(n);
+    std::vector<Point> points(n);
 
     for (int i = 0; i < n; ++i) {
         addrs[i] = GenAddr();
@@ -125,7 +129,9 @@ Network Random(int n, float r_coeff, float random_edges_ratio_nodes) {
         int b = distInt(Gen) % n;
         myassert(a >= 0 && b >= 0);
 
-        res.AddEdgeBidirectional(a, b);
+        if (a != b) {
+            res.AddEdgeBidirectional(a, b);
+        }
     }
 
     return Network(res, addrs, points);
@@ -139,9 +145,9 @@ Network Manual0() {
     graph.AddEdgeBidirectional(2, 3);
     graph.AddEdgeBidirectional(3, 4);
 
-    vector<Addr> addrs = { GenAddr(0), GenAddr(0), GenAddr(1), GenAddr(0), GenAddr(1) };
+    std::vector<Addr> addrs = { GenAddr(0), GenAddr(0), GenAddr(1), GenAddr(0), GenAddr(1) };
 
-    vector<Point> points = {Point(1, 1), Point(2, 1), Point(1, 0), Point(0, 0), Point(0, 1)};
+    std::vector<Point> points = {{1, 1}, {2, 1}, {1, 0}, {0, 0}, {0, 1}};
     ScalePoints(points);
 
     return Network(graph, addrs, points);
@@ -155,13 +161,11 @@ Network Manual1() {
     graph.AddEdgeBidirectional(2, 5);
     graph.AddEdgeBidirectional(3, 4);
 
-    vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(0),
+    std::vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(0),
                            GenAddr(1), GenAddr(1)
                          };
 
-    vector<Point> points = { Point(0,1), Point(1,1), Point(2,1), Point(3,1),
-                             Point(4,1), Point(2,0)
-                           };
+    std::vector<Point> points = {{0,1}, {1,1}, {2,1}, {3,1}, {4,1}, {2,0}};
     ScalePoints(points);
 
     return Network(graph, addrs, points);
@@ -184,17 +188,16 @@ Network Manual2() {
     graph.AddEdgeBidirectional(11, 13);
     graph.AddEdgeBidirectional(12, 13);
 
-    vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(0),
+    std::vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(0),
                            GenAddr(0), GenAddr(0), GenAddr(0), GenAddr(0), //GenAddr(1),
                            GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(0),
                            GenAddr(0), GenAddr(1)
                          };
 
-    vector<Point> points = { Point(0,3), Point(1,3), Point(2,3), Point(3,3),
-                             Point(4,3), Point(5,3), Point(6,3), Point(7,3),
-                             Point(8,3), Point(4,2), Point(5.33,2), Point(4,1),
-                             Point(4.66,1), Point(4,0)
-                           };
+    std::vector<Point> points = {{0,3}, {1,3}, {2,3}, {3,3},
+                                 {4,3}, {5,3}, {6,3}, {7,3},
+                                 {8,3}, {4,2}, {5.33,2}, {4,1},
+                                 {4.66,1}, {4,0}};
     ScalePoints(points);
 
     return Network(graph, addrs, points);
@@ -212,15 +215,14 @@ Network Manual3() {
     graph.AddEdgeBidirectional(6, 7);
     graph.AddEdgeBidirectional(7, 8);
 
-    vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(1),
+    std::vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(1),
                            GenAddr(0), GenAddr(0), GenAddr(0), GenAddr(0),
                            GenAddr(1)
                          };
 
-    vector<Point> points = { Point(0,2), Point(0.5,1), Point(1.5,1), Point(0,0),
-                             Point(1,0), Point(2,0), Point(3,0), Point(4,-1),
-                             Point(5,-1)
-                           };
+    std::vector<Point> points = {{0,2}, {0.5,1}, {1.5,1}, {0,0},
+                                 {1,0}, {2,0}, {3,0}, {4,-1},
+                                 {5,-1}};
     ScalePoints(points);
 
     return Network(graph, addrs, points);
@@ -239,16 +241,15 @@ Network Manual4() {
     graph.AddEdgeBidirectional(6, 7);
     graph.AddEdgeBidirectional(7, 8);
 
-    vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(1),
+    std::vector<Addr> addrs = { GenAddr(1), GenAddr(0), GenAddr(0), GenAddr(1),
                            GenAddr(0), GenAddr(0), GenAddr(0), GenAddr(0),
                            GenAddr(1), GenAddr(1)
                          };
 
 
-    vector<Point> points = { Point(0,2), Point(0.5,1), Point(1.5,1), Point(0,0),
-                             Point(1,0), Point(2,0), Point(3,0), Point(4,-1),
-                             Point(5,-1), Point(0.5,-1)
-                           };
+    std::vector<Point> points = {{0,2}, {0.5,1}, {1.5,1}, {0,0},
+                                 {1,0}, {2,0}, {3,0}, {4,-1},
+                                 {5,-1}, {0.5,-1}};
     ScalePoints(points);
 
     return Network(graph, addrs, points);
@@ -283,18 +284,17 @@ Network Manual5() {
     graph.AddEdgeBidirectional(10, 14);
     graph.AddEdgeBidirectional(11, 15);
 
-    vector<Addr> addrs = { GenAddr(28, 5), GenAddr(12, 5), GenAddr(18, 5), GenAddr(25, 5),
+    std::vector<Addr> addrs = { GenAddr(28, 5), GenAddr(12, 5), GenAddr(18, 5), GenAddr(25, 5),
                            GenAddr(17, 5), GenAddr(31, 5), GenAddr(10, 5), GenAddr(6, 5),
                            GenAddr(22, 5), GenAddr(11, 5), GenAddr(26, 5), GenAddr(9, 5),
                            GenAddr(27, 5), GenAddr(24, 5), GenAddr(7, 5), GenAddr(8, 5)
                          };
     cout << Binary(GenAddr(28, 5)) << endl;
 
-    vector<Point> points = { Point(0,0), Point(1,0), Point(2,0), Point(3,0),
-                             Point(0.1,1), Point(1.1,1), Point(2.1,1), Point(3.1,1),
-                             Point(0,2), Point(1,2), Point(2,2), Point(3,2),
-                             Point(0.1,3), Point(1.1,3), Point(2.1,3), Point(3.1,3)
-                           };
+    std::vector<Point> points = {{0,0}, {1,0}, {2,0}, {3,0},
+                                 {0.1,1}, {1.1,1}, {2.1,1}, {3.1,1},
+                                 {0,2}, {1,2}, {2,2}, {3,2},
+                                 {0.1,3}, {1.1,3}, {2.1,3}, {3.1,3}};
     ScalePoints(points);
 
     return Network(graph, addrs, points);

@@ -1,18 +1,20 @@
-#include "stable.h"
-#include "misc.h"
-#include "graph.h"
-#include "bmlrp.h"
 #include "debug.h"
 
-string Binary(Addr a, uchar n, bool format) {
+#include "stable.h"
+#include "misc.h"
+
+using std::cout;
+using std::endl;
+
+std::string Binary(Addr a, uchar n, bool format) {
     myassert(n <= sizeof(a)*8);
 
-    string res;
+    std::string res;
     for (char i = 0; i < n; ++i) {
         if (format && (i != 0) && (i % 4 == 0)) {
             res += ' ';
         }
-        if (a & FirstBit) {
+        if (a & Msb) {
             res += '1';
         } else {
             res += '0';

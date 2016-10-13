@@ -6,345 +6,165 @@
 #include "test.h"
 #include "debug.h"
 
-// node in directed acyclic graph
-class DAG_Node {
-public:
-    uint node;
-    shared_ptr<DAG_Node> parent;
+using std::cerr;
+using std::endl;
+using std::vector;
 
-    uint Head() {
-        if (!parent) {
-            return node;
-        }
-        return parent->Head();
+const Addr Msb = ((Addr)-1 >> 1) + 1;
+
+void connectInside(const vector<int>& circle, const vector<Addr>& addrs,
+                   int l, int r, Addr bit, Graph& appendTo) {
+    myassert(bit != 0);
+
+    if (r - l < 2) {
+        return;
     }
 
-    bool Find(uint node) {
-        return ( (DAG_Node::node == node) || (parent && parent->Find(node)) );
-    }
-};
-
-class State1 {
-public:
-    uint node;  //current position
-    shared_ptr<DAG_Node> chain;
-    uint ttl;
-
-    State1() {
-        node = 0;
-        ttl = 0;
+    int m = l;
+    while ((m < r) && ((addrs[circle[m]] & bit) == 0)) {
+        ++m;
     }
 
-    State1(uint node, uint ttl) {
-        State1::node = node;
-        State1::ttl = ttl;
-    }
+    if ((m - l > 0) && (r - m > 0)) {
+        int best_i = l;
+        int best_j = m;
+        Addr best_dist = addrs[circle[l]] ^ addrs[circle[m]];
 
-    State1(uint node, shared_ptr<DAG_Node> chain, uint ttl) {
-        State1::node = node;
-        State1::chain = chain;
-        State1::ttl = ttl;
-    }
-};
-
-class State2 {
-public:
-    uint node;
-    uint ttl;
-    uint dist;
-
-    State2() {
-        node = 0;
-        ttl = 0;
-        dist = 0;
-    }
-
-    State2(uint node, uint ttl, uint dist) {
-        State2::node = node;
-        State2::ttl = ttl;
-        State2::dist = dist;
-    }
-
-    bool operator<(const State2& other) const {
-        if (ttl > other.ttl) {
-            return true;
-        }
-        if (ttl < other.ttl) {
-            return false;
-        }
-        if (dist < other.dist) {
-            return true;
-        }
-        if (dist > other.dist) {
-            return false;
-        }
-        return (node < other.node);
-    }
-};
-
-bool SameColor(Addr a, Addr b);
-
-class Neighborhood {
-public:
-    uint node;
-    vector< pair<Addr, uint> > neighborhood;
-
-    Neighborhood() {}
-
-    Neighborhood(const Graph& graph, uint node, const vector<Addr>& addrs) {
-        Neighborhood::node = node;
-
-        vector<uint> succ = graph.GetDirectSuccessors(node);
-        for (uint i = 0; i < succ.size(); ++i) {
-            const uint to = succ[i];
-
-            if (!SameColor(addrs[node], addrs[to])) {
-                neighborhood.push_back( make_pair(addrs[to], to) );
-            }
-        }
-
-        sort(neighborhood.begin(), neighborhood.end());
-    }
-
-    bool empty() const {
-        return neighborhood.empty();
-    }
-
-    void connectInside(uint myNode, Addr myAddr, Graph& appendTo) {
-        uint l = 0;
-        uint r = neighborhood.size();
-
-        Addr bit = FirstBit;
-        Addr mAddr = FirstBit;
-
-        while (r - l > 1) {
-            myassert(bit != 0);
-
-            uint m = l;
-            while ((m < r) && (neighborhood[m].first < mAddr)) {
-                ++m;
-            }
-
-            if ((m - l > 0) && (r - m > 0)) {
-                uint best_l = l;
-                uint best_r = m;
-                Addr bestDist = neighborhood[l].first ^ neighborhood[m].first;
-
-                for (uint il = l; il < m; ++il) {
-                    for (uint ir = m; ir < r; ++ir) {
-                        Addr dist = neighborhood[il].first ^ neighborhood[ir].first;
-
-                        if (dist < bestDist) {
-                            bestDist = dist;
-                            best_l = il;
-                            best_r = ir;
-                        }
-                    }
-                }
-
-                uint a = neighborhood[best_l].second;
-                uint b = neighborhood[best_r].second;
-                if (myNode == a) {
-                    appendTo.AddEdge(a, b);
-                } else if (myNode == b) {
-                    appendTo.AddEdge(b, a);
-                }
-            }
-
-            if (myAddr < mAddr) {
-                r = m;
-            } else {
-                l = m;
-            }
-
-            mAddr = mAddr ^ bit ^ (myAddr & bit);
-            bit >>= 1;
-            mAddr = mAddr | bit;
-        }   // while (r - l > 1)
-    }
-
-    void connectTo(const Neighborhood& to, Addr myNode, Graph& appendTo) const {
-        myassert(!empty());
-        myassert(!to.empty());
-
-        Addr bestDist = neighborhood[0].first ^ to.neighborhood[0].first;
-        uint best0 = neighborhood[0].second;
-        uint best1 = to.neighborhood[0].second;
-
-        for (uint i = 0; i < neighborhood.size(); ++i) {
-            for (uint j = 0; j < to.neighborhood.size(); ++j) {
-                Addr dist = neighborhood[i].first ^ to.neighborhood[j].first;
-
-                if (dist < bestDist) {
-                    bestDist = dist;
-                    best0 = neighborhood[i].second;
-                    best1 = to.neighborhood[j].second;
+        for (int i = l; i < m; ++i) {
+            for (int j = m; j < r; ++j) {
+                Addr dist = addrs[circle[i]] ^ addrs[circle[j]];
+                if (dist < best_dist) {
+                    best_dist = dist;
+                    best_i = i;
+                    best_j = j;
                 }
             }
         }
 
-        if ((best0 == myNode) && (best1 != myNode)) {
-            appendTo.AddEdge(best0, best1);
+        appendTo.AddEdgeBidirectional(circle[best_i], circle[best_j]);
+    }
+
+    bit >>= 1;
+    connectInside(circle, addrs, l, m, bit, appendTo);
+    connectInside(circle, addrs, m, r, bit, appendTo);
+}
+
+// Connect nodes inside circle. circle must be sorted.
+void connectInside(const vector<int>& circle, const vector<Addr>& addrs,
+                   Graph& appendTo) {
+    connectInside(circle, addrs, 0, circle.size(), Msb, appendTo);
+}
+
+// Connect 2 circles together.
+void connectCircles(const vector<int>& circle0, const vector<int>& circle1,
+                    const vector<Addr>& addrs, Graph& appendTo) {
+    if (circle0.empty()) {
+        return;
+    }
+    myassert(!circle1.empty());
+
+    Addr best_dist = addrs[circle0[0]] ^ addrs[circle1[0]];
+    int best_i = 0;
+    int best_j = 0;
+
+    for (uint i = 0; i < circle0.size(); ++i) {
+        for (uint j = 0; j < circle1.size(); ++j) {
+            Addr dist = addrs[circle0[i]] ^ addrs[circle1[j]];
+            if (dist < best_dist) {
+                best_dist = dist;
+                best_i = i;
+                best_j = j;
+            }
         }
     }
-};
 
+    if (circle0[best_i] != circle1[best_j]) {
+        appendTo.AddEdgeBidirectional(circle0[best_i], circle1[best_j]);
+    }
+}
 
-shared_ptr<DAG_Node> DAG_Append(shared_ptr<DAG_Node> dagnode, uint node) {
-    shared_ptr<DAG_Node> res(new DAG_Node);
-    res->node = node;
-    res->parent = dagnode;
-    return res;
+bool DiffColor(Addr a, Addr b) {
+    return (a ^ b) & Msb;
 }
 
 bool SameColor(Addr a, Addr b) {
-    return ~(a ^ b) & FirstBit;
+    return !DiffColor(a, b);
 }
 
-// cl == current level
+// Returns the next level graph.
+// clGraph: current level graph
+// addrs: vector of addresses shifted left by i, if clGraph is level i.
 Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
-    const uint n = clGraph.n;
-    const uint inf = (uint)-1;
+    const int n = clGraph.n;
 
-    Graph g[n];
-    for (uint i = 0; i < n; ++i) {
-        g[i] = Graph(n);
+    vector< vector<int> > circles(n);
+    vector<int> radius(n, 0);
+
+    struct BfsState {
+        int node;  // the tracked node
+        int location;  // the current location (vertex at which node is located)
+    };
+
+    std::queue<BfsState> q;
+    for (int i = 0; i < n; ++i) {
+        q.push({i, i});
     }
 
-    // min dist to opposite color
-    uint dist[n];
-    memset(dist, -1, sizeof(dist));     //filling dist[n] with inf
-
-    queue<State1> q;
-    for (uint i = 0; i < n; ++i) {
-        q.push(State1(i, inf));
-    }
-
-    //bool used[n][n] = {false};
-
-    uint iter = 0;
+    // distance from the origin
+    int dist = 0;
 
     while (!q.empty()) {
-        queue<State1> qn;    //queue new
+        std::queue<BfsState> qn;  // queue new
 
         while (!q.empty()) {
-            uint node = q.front().node;
-
-            shared_ptr<DAG_Node> chain = DAG_Append(q.front().chain, node);
-
-            uint ttl = q.front().ttl;
-            if (iter > dist[node]) {
-                ttl = min(ttl, dist[node]);
-            }
-
+            int node = q.front().node;
+            int loc = q.front().location;
             q.pop();
 
-            if (iter > 0) {
-                dist[node] = min(dist[node], iter);
-            }
-
-            if (ttl > 0) {
-                vector<uint> succ = clGraph.GetDirectSuccessors(node);
-                for (uint i = 0; i < succ.size(); ++i) {
-                    const uint to = succ[i];
-
-                    // check that neighbor `to` is not in the `chain`
-                    if (!chain->Find(to)) {
-                        if (SameColor(addrs[chain->Head()], addrs[to])) {
-                            shared_ptr<DAG_Node> current = chain;
-
-                            while(current->parent) {
-                                g[to].AddEdgeBidirectional(current->parent->node, current->node);
-                                current = current->parent;
-                            }
-                        } else {
-                            qn.push(State1(to, chain, ttl - 1));
-                        }
+            vector<int> succ = clGraph.GetDirectSuccessors(loc);
+            for (uint i = 0; i < succ.size(); ++i) {
+                const int to = succ[i];
+                if (DiffColor(addrs[node], addrs[to])) {
+                    if ((radius[to] == 0) || (radius[to] == dist + 1)) {
+                        radius[to] = dist + 1;
+                        circles[to].push_back(node);
+                        qn.push({node, to});
                     }
                 }
             }
         }
 
         q = qn;
-        ++iter;
+        ++dist;
     }
-
-    // adding direct connections in g
-    for (uint i = 0; i < n; ++i) {
-        vector<uint> succ = clGraph.GetDirectSuccessors(i);
-        for (uint j = 0; j < succ.size(); ++j) {
-            const uint to = succ[j];
-
-            g[i].AddEdgeBidirectional(i, to);
-        }
-    }
-
-    // print g
-//    for (uint i = 0; i < n; ++i) {
-//        cout << "g of " << i << " :  ";
-//        g[i].Print();
-//    }
-//    cout << endl;
-
 
     Graph res(n);
 
-    for (uint i = 0; i < n; ++i) {
-        vector<uint> succ = g[i].GetDirectSuccessors(i);
+    // connect nodes in each circle
+    for (int i = 0; i < n; ++i) {
+        auto& circle = circles[i];
 
+        // sort nodes by address
+        sort(circle.begin(), circle.end(),
+             [&addrs](int node1, int node2) {return addrs[node1] < addrs[node2];});
+
+        // make each element unique
+        auto it = std::unique(circle.begin(), circle.end());
+        circle.resize(std::distance(circle.begin(), it));
+
+        connectInside(circle, addrs, res);
+    }
+
+    // connect same color neighbors and connect nodes in neighboring circles
+    for (int i = 0; i < n; ++i) {
+        vector<int> succ = clGraph.GetDirectSuccessors(i);
         for (uint j = 0; j < succ.size(); ++j) {
-            const uint jto = succ[j];
-
-            if (SameColor(addrs[i], addrs[jto])) {
-                res.AddEdge(i, jto);
-            } else {
-                Neighborhood neighborhood(g[i], jto, addrs);
-                neighborhood.connectInside(i, addrs[i], res);
-            }
-        }
-
-        for (uint j = 0; j < succ.size(); ++j) {
-            const uint jto = succ[j];
-
-            if (!SameColor(addrs[i], addrs[jto])) {
-                Neighborhood myNeighborhood(g[i], jto, addrs);
-
-                vector<bool> used(n, false);
-
-                set<State2> q;
-                q.insert(State2(jto, inf, 1));
-
-                while (!q.empty()) {
-                    State2 s = *q.begin();
-                    uint node = s.node;
-                    uint ttl = s.ttl;
-                    uint d = s.dist;
-                    q.erase(q.begin());
-
-                    if (!used[node]) {
-                        used[node] = true;
-
-                        Neighborhood neighborhood(g[i], node, addrs);
-                        if ((d > 1) && !neighborhood.empty()) {
-                            myNeighborhood.connectTo(neighborhood, i, res);
-                        } else {
-                            if (d > dist[node]) {
-                                ttl = min(ttl, dist[node]);
-                            }
-
-                            if (ttl > 1) {
-                                vector<uint> succk = g[i].GetDirectSuccessors(node);
-                                for (uint k = 0; k < succk.size(); ++k) {
-                                    const uint kto = succk[k];
-
-                                    if (!used[kto] && SameColor(addrs[jto], addrs[kto])) {
-                                        q.insert(State2(kto, ttl - 1, d + 1));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            const int to = succ[j];
+            if (SameColor(addrs[i], addrs[to])) {
+                // connect same color neighbors
+                res.AddEdge(i, to);
+                // connect nodes in neighboring circles
+                connectCircles(circles[i], circles[to], addrs, res);
             }
         }
     }
@@ -352,20 +172,17 @@ Graph NextLevel(const Graph& clGraph, const vector<Addr>& addrs) {
     return res;
 }
 
-Graph GetLevel(const Graph& level0, const vector<Addr>& addrs, uint level) {
-    myassert(level <= sizeof(Addr)*8);
-    if (!IsGraphConnected(level0)) {
-        cerr << "input graph is not connected" << endl;
-        myassert(0);
-    }
+Graph GetLevel(const Graph& level0, const vector<Addr>& addrs, int level) {
+    myassert(level <= (int)sizeof(Addr) * 8);
+    myassert(IsGraphConnected(level0));
 
     Graph res = level0;
 
     vector<Addr> addrs_copy = addrs;
 
-    for (uint leveli = 1; leveli <= level; ++leveli) {
+    for (int level_i = 1; level_i <= level; ++level_i) {
         res = NextLevel(res, addrs_copy);
-        TestNextLevel(res, addrs, leveli);
+        TestNextLevel(res, addrs, level_i);
 
         for (uint i = 0; i < addrs_copy.size(); ++i) {
             addrs_copy[i] <<= 1;

@@ -3,26 +3,26 @@
 
 class Network_R {
 public:
-    vector<uint> edges;
-    vector<string> labels;
-    vector<bool> colors;
-    vector<float> coords;   //x1,y1,x2,y2,...
+    std::vector<int> edges;
+    std::vector<std::string> labels;
+    std::vector<bool> colors;
+    std::vector<float> coords;   //x1,y1,x2,y2,...
 
     Network_R() {}
 
-    Network_R(const Network& net, const string& filter, char label) {
+    Network_R(const Network& net, const std::string& filter, char label) {
         Graph graph = net.graph;
-        vector<Addr> addrs = net.addrs;
-        vector<Point> points = net.points;
+        std::vector<Addr> addrs = net.addrs;
+        std::vector<Point> points = net.points;
 
-        const uint n = net.graph.n;
+        const int n = net.graph.n;
 
         myassert(addrs.size() == n);
         myassert(points.size() == n);
 
         int include[n];
         int j = 0;
-        for (uint i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i) {
             if (IncludeAddr(addrs[i], filter)) {
                 include[i] = j++;
             } else {
@@ -32,15 +32,15 @@ public:
 
         edges = Edges_R(graph, include);
 
-        for (uint i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i) {
             if (include[i] != -1) {
                 if (label < 0) {
-                    labels.push_back( to_string(i) );
+                    labels.push_back( std::to_string(i) );
                 } else {
                     labels.push_back( Binary(addrs[i], label, false) );
                 }
 
-                colors.push_back( addrs[i] & (FirstBit >> filter.size()) );
+                colors.push_back( addrs[i] & (Msb >> filter.size()) );
 
                 coords.push_back( points[i].x );
                 coords.push_back( points[i].y );
@@ -49,12 +49,12 @@ public:
     }
 
 private:
-    bool IncludeAddr(Addr a, const string& filter) {
+    bool IncludeAddr(Addr a, const std::string& filter) {
         for (uint i = 0; i < filter.size(); ++i) {
             char ch = filter[i] - '0';
             myassert(ch == 0 || ch == 1);
 
-            if ((bool)(a & FirstBit) != ch) {
+            if ((bool)(a & Msb) != ch) {
                 return false;
             }
 
@@ -64,14 +64,14 @@ private:
         return true;
     }
 
-    vector<uint> Edges_R(Graph graph, int* include) {
-        vector<uint> res;
+    std::vector<int> Edges_R(Graph graph, int* include) {
+        std::vector<int> res;
 
-        for (uint i = 0; i < graph.n; ++i) {
-            vector<uint> succ = graph.GetDirectSuccessors(i);
+        for (int i = 0; i < graph.n; ++i) {
+            std::vector<int> succ = graph.GetDirectSuccessors(i);
 
             for (uint j = 0; j < succ.size(); ++j) {
-                uint to = succ[j];
+                int to = succ[j];
 
                 if ((to > i) && (include[i] != -1) && (include[to] != -1)) {
                     res.push_back(include[i]);

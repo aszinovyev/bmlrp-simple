@@ -1,33 +1,24 @@
 #ifndef SIM_H
 #define SIM_H
 
-using namespace std;
+using std::cerr;
+using std::endl;
 
-class Point {
-public:
+struct Point {
     float x;
     float y;
-
-    Point() {
-        x = 0;
-        y = 0;
-    }
-
-    Point(float x, float y) {
-        Point::x = x;
-        Point::y = y;
-    }
 };
 
 class Network {
 public:
     Graph graph;
-    vector<Addr> addrs;
-    vector<Point> points;
+    std::vector<Addr> addrs;
+    std::vector<Point> points;
 
     Network() {}
 
-    Network(Graph graph, vector<Addr> addrs, vector<Point> points) {
+    Network(const Graph& graph, const std::vector<Addr>& addrs,
+            const std::vector<Point>& points) {
         Network::graph = graph;
         Network::addrs = addrs;
         Network::points = points;
@@ -38,7 +29,7 @@ public:
 Network GetNetworkLevel(const Network& net_level0, int level);
 
 Network Random(int n, float r_coeff, float random_edges_ratio_nodes);
-vector<float> GetAverageNodeDegrees(const Network& net_level0, uint max_level);
+std::vector<float> GetAverageNodeDegrees(const Network& net_level0, int max_level);
 
 Network Manual0();
 Network Manual1();

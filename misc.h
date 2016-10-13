@@ -1,11 +1,11 @@
 #ifndef MISC_H
 #define MISC_H
 
-using namespace std;
-
 typedef unsigned int uint;
 typedef unsigned char uchar;
 
-extern default_random_engine Gen;
+extern std::default_random_engine Gen;
+
+void set_stack_size(rlim_t size);
 
 #endif // MISC_H

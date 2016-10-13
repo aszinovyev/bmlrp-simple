@@ -12,5 +12,6 @@
 #include <set>
 #include <queue>
 #include <tuple>
+#include <sys/resource.h>
 
 #endif // STABLE_H
