@@ -1,98 +1,32 @@
-#ifndef GRAPH_H
-#define GRAPH_H\
+#ifndef GRAPH_H_
+#define GRAPH_H_
 
-#include "stable.h"
+#include <set>
+#include <vector>
 
 class Graph {
-public:
-    Graph() {
-        n = 0;
-    }
+ public:
+  Graph();
+  explicit Graph(int n);
 
-    Graph(int n) {
-        Graph::n = n;
-    }
+  void AddEdge(int a, int b);
+  void AddEdgeBidirectional(int a, int b);
 
-    void AddEdge(int a, int b) {
-        edges.insert( std::make_pair(a, b) );
-        edgesReverse.insert( std::make_pair(b, a) );
-    }
+  void RemoveEdge(int a, int b);
+  void RemoveEdgeBidirectional(int a, int b);
 
-    void AddEdgeBidirectional(int a, int b) {
-        AddEdge(a, b);
-        AddEdge(b, a);
-    }
+  bool EdgeExists(int a, int b) const;
+  bool EdgeExistsBidirectional(int a, int b) const;
 
-    void RemoveEdge(int a, int b) {
-        edges.erase( std::make_pair(a, b) );
-        edgesReverse.erase( std::make_pair(b, a) );
-    }
+  std::vector<int> GetDirectSuccessors(int node) const;
+  std::vector<int> GetDirectPredecessors(int node) const;
 
-    void RemoveEdgeBidirectional(int a, int b) {
-        RemoveEdge(a, b);
-        RemoveEdge(b, a);
-    }
+  bool Symmetric() const;
 
-//    void RemoveVertex(int a) {
-//        std::vector< std::pair<int, int> > toRemove;
+  int n;
 
-//        for (auto it = edges.lower_bound( std::make_pair(a, 0) );
-//             it != edges.cend() && it->first == a; ++it)
-//        {
-//            toRemove.push_back(it->first);
-//        }
-
-//        for (auto it = edgesReverse.lower_bound( std::make_pair(a, 0) );
-//             it != edgesReverse.cend() && it->first == a; ++it)
-//        {
-//            toRemove.push_back(it->first);
-//        }
-
-//        for (int32_t i = 0; i < toRemove.size(); ++i) {
-//            RemoveEdge(toRemove[i].first, toRemove[i].second);
-//        }
-//    }
-
-    bool EdgeExists(int a, int b) const {
-        return ( edges.find(std::make_pair(a, b)) != edges.cend() );
-    }
-
-    bool EdgeExistsBidirectional(int a, int b) const {
-        return EdgeExists(a, b) && EdgeExists(b, a);
-    }
-
-    std::vector<int> GetDirectSuccessors(int node) const {
-        std::vector<int> res;
-
-        for (auto it = edges.lower_bound( std::make_pair(node, 0) );
-             it != edges.cend() && it->first == node; ++it)
-        {
-            res.push_back(it->second);
-        }
-
-        return res;
-    }
-
-    std::vector<int> GetDirectPredecessors(int node) const {
-        std::vector<int> res;
-
-        for (auto it = edgesReverse.lower_bound( std::make_pair(node, 0) );
-             it != edgesReverse.cend() && it->first == node; ++it)
-        {
-            res.push_back(it->second);
-        }
-
-        return res;
-    }
-
-    bool Symmetric() const {
-        return (edges == edgesReverse);
-    }
-
-    int n;
-
-    std::set< std::pair<int, int> > edges;
-    std::set< std::pair<int, int> > edgesReverse;
+  std::set< std::pair<int, int> > edges;
+  std::set< std::pair<int, int> > edgesReverse;
 };
 
-#endif // GRAPH_H
+#endif  // GRAPH_H_

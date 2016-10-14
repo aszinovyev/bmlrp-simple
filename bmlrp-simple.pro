@@ -8,7 +8,8 @@ SOURCES += main.cpp \
     misc.cpp \
     bmlrp.cpp \
     debug.cpp \
-    test.cpp
+    test.cpp \
+    graph.cpp
 
 HEADERS += \
     sim.h \
@@ -19,7 +20,7 @@ HEADERS += \
     test.h
 
 OTHER_FILES += \
-    export.cpp \
-    export.h
-
-PRECOMPILED_HEADER = stable.h
+    network_r.h \
+    network_r.cpp \
+    export.h \
+    export.cpp

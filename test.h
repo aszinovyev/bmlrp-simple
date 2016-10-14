@@ -1,7 +1,11 @@
-#ifndef TEST_H
-#define TEST_H
+#ifndef TEST_H_
+#define TEST_H_
 
-void TestNextLevel(const Graph& graph, const std::vector<Addr>& addrs, int nextLevel);
+#include "bmlrp.h"
+#include "graph.h"
+
+void TestNextLevel(const Graph& graph, const std::vector<Addr>& addrs,
+                   int nextLevel);
 bool IsGraphConnected(const Graph& graph);
 
-#endif // TEST_H
+#endif  // TEST_H_
